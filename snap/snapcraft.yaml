@@ -1,0 +1,45 @@
+name: linuxptp
+base: core22
+summary: Linux Precision Time Protocol (PTP)
+description: |
+  Snap packaging for linuxptp,
+  an implementation of the Precision Time Protocol (PTP) according to IEEE standard 1588 for Linux.
+license: GPL-2.0-only
+adopt-info: linuxptp
+
+grade: devel
+confinement: devmode
+
+parts:
+  linuxptp:
+    plugin: make
+    source: git://git.code.sf.net/p/linuxptp/code
+    source-tag: v4.0
+    source-depth: 1
+    # make-parameters: 
+    override-build: |
+      craftctl default
+
+      install -DT COPYING $CRAFT_PART_INSTALL/usr/share/doc/COPYING
+
+      craftctl set version="$(git describe --tags)+snap"
+
+apps:
+  hwstamp-ctl: # renamed to bypass character restrictions
+    command: usr/local/sbin/hwstamp_ctl
+  nsm:
+    command: usr/local/sbin/nsm
+  phc-ctl: # renamed to bypass character restrictions
+    command: usr/local/sbin/phc_ctl
+  phc2sys:
+    command: usr/local/sbin/phc2sys
+  pmc:
+    command: usr/local/sbin/pmc
+  ptp4l:
+    command: usr/local/sbin/ptp4l
+  timemaster:
+    command: usr/local/sbin/timemaster
+  ts2phc:
+    command: usr/local/sbin/ts2phc
+  tz2alt:
+    command: usr/local/sbin/tz2alt
