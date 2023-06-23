@@ -12,34 +12,31 @@ confinement: devmode
 
 parts:
   linuxptp:
-    plugin: make
-    source: git://git.code.sf.net/p/linuxptp/code
-    source-tag: v4.0
-    source-depth: 1
-    # make-parameters: 
+    plugin: nil
+    stage-packages:
+      - linuxptp
     override-build: |
       craftctl default
 
-      install -DT COPYING $CRAFT_PART_INSTALL/usr/share/doc/COPYING
-
-      craftctl set version="$(git describe --tags | sed s/v//)+snap"
+      VERSION=$($CRAFT_PART_INSTALL/usr/sbin/ptp4l -v)
+      craftctl set version=$VERSION+snap
 
 apps:
   hwstamp-ctl: # renamed to bypass character restrictions
-    command: usr/local/sbin/hwstamp_ctl
+    command: usr/sbin/hwstamp_ctl
   nsm:
-    command: usr/local/sbin/nsm
+    command: usr/sbin/nsm
   phc-ctl: # renamed to bypass character restrictions
-    command: usr/local/sbin/phc_ctl
+    command: usr/sbin/phc_ctl
   phc2sys:
-    command: usr/local/sbin/phc2sys
+    command: usr/sbin/phc2sys
   pmc:
-    command: usr/local/sbin/pmc
+    command: usr/sbin/pmc
   ptp4l:
-    command: usr/local/sbin/ptp4l
+    command: usr/sbin/ptp4l
   timemaster:
-    command: usr/local/sbin/timemaster
+    command: usr/sbin/timemaster
   ts2phc:
-    command: usr/local/sbin/ts2phc
-  tz2alt:
-    command: usr/local/sbin/tz2alt
+    command: usr/sbin/ts2phc
+  # tz2alt: # available starting from linuxptp v4.0
+  #   command: usr/sbin/tz2alt
