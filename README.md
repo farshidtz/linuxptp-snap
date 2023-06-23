@@ -7,7 +7,7 @@ snapcraft -v
 
 Install:
 ```bash
-snap install --devmode ./linuxptp_v4.0+snap_amd64.snap
+snap install --devmode *.snap
 ```
 
 Info:

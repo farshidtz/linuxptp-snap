@@ -22,7 +22,7 @@ parts:
 
       install -DT COPYING $CRAFT_PART_INSTALL/usr/share/doc/COPYING
 
-      craftctl set version="$(git describe --tags)+snap"
+      craftctl set version="$(git describe --tags | sed s/v//)+snap"
 
 apps:
   hwstamp-ctl: # renamed to bypass character restrictions
