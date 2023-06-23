@@ -1,4 +1,4 @@
-name: linuxptp
+name: linuxptp-rt
 base: core22
 summary: Linux Precision Time Protocol (PTP)
 description: |

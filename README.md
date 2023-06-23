@@ -12,8 +12,8 @@ snap install --devmode *.snap
 
 Info:
 ```bash
-$ snap info linuxptp
-name:      linuxptp
+$ snap info linuxptp-rt
+name:      linuxptp-rt
 summary:   Linux Precision Time Protocol (PTP)
 publisher: –
 license:   GPL-2.0-only
@@ -21,22 +21,22 @@ description: |
   Snap packaging for linuxptp,
   an implementation of the Precision Time Protocol (PTP) according to IEEE standard 1588 for Linux.
 commands:
-  - linuxptp.hwstamp-ctl
-  - linuxptp.nsm
-  - linuxptp.phc-ctl
-  - linuxptp.phc2sys
-  - linuxptp.pmc
-  - linuxptp.ptp4l
-  - linuxptp.timemaster
-  - linuxptp.ts2phc
-  - linuxptp.tz2alt
+  - linuxptp-rt.hwstamp-ctl
+  - linuxptp-rt.nsm
+  - linuxptp-rt.phc-ctl
+  - linuxptp-rt.phc2sys
+  - linuxptp-rt.pmc
+  - linuxptp-rt.ptp4l
+  - linuxptp-rt.timemaster
+  - linuxptp-rt.ts2phc
+  - linuxptp-rt.tz2alt
 refresh-date: today at 11:36 CEST
 installed:    v4.0+snap (x4) 413kB devmode
 ```
 
 Usage:
 ```bash
-$ linuxptp.ptp4l
+$ linuxptp-rt.ptp4l
 no interface specified
 
 usage: ptp4l [options]
@@ -76,9 +76,9 @@ usage: ptp4l [options]
 
 Add [alias](https://snapcraft.io/docs/commands-and-aliases) to run the command without the namespace:
 ```
-$ snap alias linuxptp.ptp4l ptp4l
+$ snap alias linuxptp-rt.ptp4l ptp4l
 Added:
-  - linuxptp.ptp4l as ptp4l
+  - linuxptp-rt.ptp4l as ptp4l
 ```
 
 ```bash
