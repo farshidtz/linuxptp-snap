@@ -11,11 +11,11 @@ grade: devel
 confinement: strict
 
 plugs:
-  device-files:
+  ptp-device-files:
     interface: system-files
     write:
       - /dev/ptp0
-  system-runtime-files:
+  ptp-runtime-files:
     interface: system-files
     write:
       - /run/ptp4l
@@ -49,14 +49,14 @@ apps:
   ptp4l:
     command: usr/local/sbin/ptp4l
     plugs:
-      - ptp
       - network
       - network-bind
       - network-control
       - time-control
-      - device-files
-      - system-runtime-files
       - system-packages-doc
+      - ptp
+      - ptp-device-files
+      - ptp-runtime-files
 
   timemaster:
     command: usr/local/sbin/timemaster
