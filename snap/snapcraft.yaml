@@ -15,11 +15,15 @@ plugs:
     interface: system-files
     write:
       - /dev/ptp0
-  ptp-runtime-files:
+  ptp4l-runtime-files:
     interface: system-files
     write:
       - /run/ptp4l
       - /run/ptp4lro
+  ptp-runtime-files:
+    interface: system-files
+    write:
+      - /run
 
 parts:
   linuxptp:
@@ -44,8 +48,22 @@ apps:
     command: usr/local/sbin/phc_ctl
   phc2sys:
     command: usr/local/sbin/phc2sys
+    plugs:
+      - network-bind
+      - network-control
+      - ptp
+      - ptp-device-files
+      - ptp-runtime-files
+      - microstack-support
+      - time-control
+
   pmc:
     command: usr/local/sbin/pmc
+    plugs:
+      - network-bind
+      - network-control
+      - ptp
+      - ptp-runtime-files
   ptp4l:
     command: usr/local/sbin/ptp4l
     plugs:
@@ -56,7 +74,7 @@ apps:
       - system-packages-doc
       - ptp
       - ptp-device-files
-      - ptp-runtime-files
+      - ptp4l-runtime-files
 
   timemaster:
     command: usr/local/sbin/timemaster
