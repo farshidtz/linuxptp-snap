@@ -8,7 +8,18 @@ license: GPL-2.0-only
 adopt-info: linuxptp
 
 grade: devel
-confinement: devmode
+confinement: strict
+
+plugs:
+  device-files:
+    interface: system-files
+    write:
+      - /dev/ptp0
+  system-runtime-files:
+    interface: system-files
+    write:
+      - /run/ptp4l
+      - /run/ptp4lro
 
 parts:
   linuxptp:
@@ -37,6 +48,16 @@ apps:
     command: usr/local/sbin/pmc
   ptp4l:
     command: usr/local/sbin/ptp4l
+    plugs:
+      - ptp
+      - network
+      - network-bind
+      - network-control
+      - time-control
+      - device-files
+      - system-runtime-files
+      - system-packages-doc
+
   timemaster:
     command: usr/local/sbin/timemaster
   ts2phc:
