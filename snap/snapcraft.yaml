@@ -24,6 +24,10 @@ plugs:
     interface: system-files
     write:
       - /run
+  ptp-etc-files:
+    interface: system-files
+    read:
+      - /etc/linuxptp
 
 parts:
   linuxptp:
@@ -42,10 +46,26 @@ parts:
 apps:
   hwstamp-ctl: # renamed to bypass character restrictions
     command: usr/local/sbin/hwstamp_ctl
+    plugs:
+      - network-bind
+      - network-control
   nsm:
     command: usr/local/sbin/nsm
+    plugs:
+      - network-bind
+      - network-control
+      - ptp
+      - ptp-etc-files
   phc-ctl: # renamed to bypass character restrictions
     command: usr/local/sbin/phc_ctl
+    plugs:
+      - network-bind
+      - network-control
+      - ptp
+      - ptp-device-files
+      - microstack-support
+      - time-control
+
   phc2sys:
     command: usr/local/sbin/phc2sys
     plugs:
@@ -78,7 +98,27 @@ apps:
 
   timemaster:
     command: usr/local/sbin/timemaster
+    plugs:
+      - network-bind
+      - network-control
+      - ptp
+      - ptp-etc-files
+      - ptp-runtime-files
+      
   ts2phc:
     command: usr/local/sbin/ts2phc
+    plugs:
+      - network-bind
+      - network-control
+      - ptp
+      - ptp-device-files
+      - microstack-support
+      - time-control
   tz2alt:
     command: usr/local/sbin/tz2alt
+    plugs:
+      - network-bind
+      - network-control
+      - ptp
+      - ptp-runtime-files
+      - system-packages-doc
