@@ -11,20 +11,20 @@ grade: devel
 confinement: strict
 
 plugs:
-  ptp-device-files:
+  system-device-ptp0:
     interface: system-files
     write:
       - /dev/ptp0
-  ptp4l-runtime-files:
+  system-run-ptp4l:
     interface: system-files
     write:
       - /run/ptp4l
       - /run/ptp4lro
-  ptp-runtime-files:
+  system-run:
     interface: system-files
     write:
       - /run
-  ptp-etc-files:
+  system-etc-linuxptp:
     interface: system-files
     read:
       - /etc/linuxptp
@@ -54,71 +54,89 @@ apps:
     plugs:
       - network-bind
       - network-control
+      # Access to PTP subsystem and files
       - ptp
-      - ptp-etc-files
+      - system-etc-linuxptp
   phc-ctl: # renamed to bypass character restrictions
     command: usr/local/sbin/phc_ctl
     plugs:
       - network-bind
       - network-control
+      # Access to PTP subsystem and files
       - ptp
-      - ptp-device-files
-      - microstack-support
+      - system-device-ptp0
+      # Access to system date and time
       - time-control
+      # Access to system logs and data
+      - system-backup
+      - log-observe
 
   phc2sys:
     command: usr/local/sbin/phc2sys
     plugs:
       - network-bind
       - network-control
+      # Access to PTP subsystem and files
       - ptp
-      - ptp-device-files
-      - ptp-runtime-files
-      - microstack-support
+      - system-device-ptp0
+      - system-run
+      # Access to system date and time
       - time-control
+      # Access to system logs and data
+      - system-backup
+      - log-observe
 
   pmc:
     command: usr/local/sbin/pmc
     plugs:
       - network-bind
       - network-control
+      # Access to PTP subsystem and files
       - ptp
-      - ptp-runtime-files
+      - system-run
   ptp4l:
     command: usr/local/sbin/ptp4l
     plugs:
       - network
       - network-bind
       - network-control
+      # Access to system date and time
       - time-control
-      - system-packages-doc
+      # Access to PTP subsystem and files
       - ptp
-      - ptp-device-files
-      - ptp4l-runtime-files
+      - system-device-ptp0
+      - system-run-ptp4l
+      - system-packages-doc
 
   timemaster:
     command: usr/local/sbin/timemaster
     plugs:
       - network-bind
       - network-control
+      # Access to PTP subsystem and files
       - ptp
-      - ptp-etc-files
-      - ptp-runtime-files
+      - system-run
+      - system-etc-linuxptp
       
   ts2phc:
     command: usr/local/sbin/ts2phc
     plugs:
       - network-bind
       - network-control
+      # Access to PTP subsystem and files
       - ptp
-      - ptp-device-files
-      - microstack-support
+      - system-device-ptp0
+      # Access to system date and time
       - time-control
+      # Access to read system logs and data
+      - system-backup
+      - log-observe
   tz2alt:
     command: usr/local/sbin/tz2alt
     plugs:
       - network-bind
       - network-control
+      # Access to PTP subsystem and files
       - ptp
-      - ptp-runtime-files
+      - system-run
       - system-packages-doc
