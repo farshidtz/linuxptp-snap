@@ -20,7 +20,11 @@ parts:
     override-build: |
       craftctl default
 
-      install -DT COPYING $CRAFT_PART_INSTALL/usr/share/doc/COPYING
+      DOC=$CRAFT_PART_INSTALL/usr/share/doc
+      mkdir -p $DOC
+      cp COPYING $DOC/
+      # Strange location to place config files, but similar to the DEB
+      cp -vr configs $DOC/
 
       craftctl set version="$(git describe --tags | sed s/v//)+snap"
 
