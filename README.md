@@ -1,16 +1,16 @@
 # LinuxPTP Snap
 
-Build:
+## Build:
 ```bash
 snapcraft -v
 ```
 
-Install:
+## Install:
 ```bash
 snap install --devmode *.snap
 ```
 
-Info:
+## Info:
 ```bash
 $ snap info linuxptp-rt
 name:      linuxptp-rt
@@ -34,7 +34,7 @@ refresh-date: today at 11:36 CEST
 installed:    v4.0+snap (x4) 413kB devmode
 ```
 
-Usage:
+## Usage:
 ```bash
 $ linuxptp-rt.ptp4l
 no interface specified
@@ -73,6 +73,28 @@ usage: ptp4l [options]
  -v        prints the software version and exits
  -h        prints this message and exits
 ```
+
+## Examples:
+
+Synchronizing the PTP Hardware Clock:
+```bash
+$ sudo linuxptp-rt.ptp4l -i eno1 -f /snap/linuxptp-rt/current/usr/share/doc/linuxptp/configs/gPTP.cfg --step_threshold=1 -m
+ptp4l[10992.160]: selected /dev/ptp0 as PTP clock
+ptp4l[10992.246]: port 1 (eno1): INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l[10992.247]: port 0 (/var/run/ptp4l): INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l[10992.247]: port 0 (/var/run/ptp4lro): INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l[10995.795]: port 1 (eno1): LISTENING to MASTER on ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES
+ptp4l[10995.795]: selected local clock 04421a.fffe.078056 as best master
+ptp4l[10995.795]: port 1 (eno1): assuming the grand master role
+```
+
+where:
+- `eno1` is interface device to use
+- `/snap/linuxptp-rt/current/usr/share/doc/linuxptp/configs/gPTP.cfg` is the configuration file
+- `step_threshold` is the maximum offset the servo will correct by changing the clock frequency (phase when using nullf servo) instead of stepping the clock.
+- `m` is used to print messages to stdout
+
+## Alias
 
 Add [alias](https://snapcraft.io/docs/commands-and-aliases) to run the command without the namespace:
 ```
