@@ -91,7 +91,7 @@ ptp4l[10995.795]: port 1 (eno1): assuming the grand master role
 where:
 - `eno1` is interface device to use
 - `/snap/linuxptp-rt/current/usr/share/doc/linuxptp/configs/gPTP.cfg` is the configuration file
-- `step_threshold` is the maximum offset the servo will correct by changing the clock frequency (phase when using nullf servo) instead of stepping the clock.
+- `step_threshold` is the maximum offset the servo will correct by changing the clock frequency (phase when using nullf servo) instead of stepping the clock
 - `m` is used to print messages to stdout
 
 ## Alias
@@ -107,3 +107,7 @@ Added:
 $ ptp4l -v
 4.0
  ```
+
+ ## References
+ - https://manpages.debian.org/unstable/linuxptp/ptp4l.8.en.html
+ - https://tsn.readthedocs.io/timesync.html
