@@ -11,23 +11,25 @@ grade: devel
 confinement: strict
 
 plugs:
-  system-device-ptp0:
+  system-dev-ptp0:
     interface: system-files
     write:
       - /dev/ptp0
+  system-device-pts:
+    interface: system-files
+    write:
+      - /dev/pts
   system-run-ptp4l:
     interface: system-files
     write:
       - /run/ptp4l
       - /run/ptp4lro
+  # Access to the Unix Domain Socket (UDS) file 
+  # located in /run/pmc.* used by pmc application
   system-run:
     interface: system-files
     write:
       - /run
-  system-etc-linuxptp:
-    interface: system-files
-    read:
-      - /etc/linuxptp
 
 parts:
   linuxptp:
@@ -105,8 +107,8 @@ apps:
       # Access to PTP subsystem and files
       - ptp
       - system-device-ptp0
+      - system-device-pts
       - system-run-ptp4l
-      - system-packages-doc
 
   timemaster:
     command: usr/local/sbin/timemaster
@@ -139,4 +141,3 @@ apps:
       # Access to PTP subsystem and files
       - ptp
       - system-run
-      - system-packages-doc
