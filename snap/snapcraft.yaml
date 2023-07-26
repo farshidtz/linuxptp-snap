@@ -15,7 +15,7 @@ plugs:
     interface: system-files
     write:
       - /dev/ptp0
-  system-device-pts:
+  system-dev-pts:
     interface: system-files
     write:
       - /dev/pts
@@ -70,7 +70,7 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
-      - system-device-ptp0
+      - system-dev-ptp0
       # Access to system date and time
       - time-control
       # Access to system logs and data
@@ -84,7 +84,7 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
-      - system-device-ptp0
+      - system-dev-ptp0
       - system-run
       # Access to system date and time
       - time-control
@@ -110,8 +110,8 @@ apps:
       - time-control
       # Access to PTP subsystem and files
       - ptp
-      - system-device-ptp0
-      - system-device-pts
+      - system-dev-ptp0
+      - system-dev-pts
       - system-run-ptp4l
 
   timemaster:
@@ -131,7 +131,7 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
-      - system-device-ptp0
+      - system-dev-ptp0
       # Access to system date and time
       - time-control
       # Access to read system logs and data
