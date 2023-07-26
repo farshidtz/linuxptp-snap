@@ -136,7 +136,7 @@ where:
 - `t` is used to specify the transport specific field in sent messages as a hexadecimal number.
 
 
-### phc2sys - synchronize the System clock with PHC:
+### phc2sys - synchronize the system clock with PHC:
 ```bash
 $ sudo linuxptp-rt.phc2sys -s eno1 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m
 phc2sys[39606.945]: Waiting for ptp4l...
@@ -176,13 +176,13 @@ where:
 
 
 
-### Timemaster - run Network Time Protocol (NTP) with Precision Time Protocol (PTP) as reference clocks:
+### Timemaster - run Network Time Protocol (NTP) with PTP as reference clocks:
 ```bash
 sudo linuxptp-rt.timemaster -f /etc/linuxptp/timemaster.conf 
 ```
 TBA, needs relocate timemaster.conf under snap file location
 
-### ts2phc - synchronize one or more PTP Hardware Clocks using external time stamps:
+### ts2phc - synchronize one or more PHC using external time stamps:
 
 ```bash
 $ sudo linuxptp-rt.ts2phc -c eno1 -m
