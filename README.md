@@ -74,9 +74,27 @@ usage: ptp4l [options]
  -h        prints this message and exits
 ```
 
+Connect interfaces to access desired resources::
+
+```bash
+# Access to network setting
+snap connect linuxptp-rt:network-control
+# Access to system date and time
+snap connect linuxptp-rt:time-control
+
+# Access to system logs and data
+snap connect linuxptp-rt:system-backup  
+snap connect linuxptp-rt:log-observe   
+
+# Access to PTP subsystem and files
+snap connect linuxptp-rt:ptp
+snap connect linuxptp-rt:system-dev-pts
+snap connect linuxptp-rt:system-dev-ptp0 
+```
+
 ## Examples:
 
-Synchronizing the PTP Hardware Clock:
+### ptp4l - synchronize the PTP Hardware Clock (PHC):
 ```bash
 $ sudo linuxptp-rt.ptp4l -i eno1 -f /snap/linuxptp-rt/current/usr/share/doc/linuxptp/configs/gPTP.cfg --step_threshold=1 -m
 ptp4l[10992.160]: selected /dev/ptp0 as PTP clock
@@ -94,6 +112,75 @@ where:
 - `step_threshold` is the maximum offset the servo will correct by changing the clock frequency (phase when using nullf servo) instead of stepping the clock
 - `m` is used to print messages to stdout
 
+### nsm - NetSync Monitor (NSM) client
+TBA
+
+### pmc - synchronize the system clock:
+```bash
+$ sudo linuxptp-rt.pmc -u -b 0 -t 1 "SET GRANDMASTER_SETTINGS_NP clockClass 248 \
+        clockAccuracy 0xfe offsetScaledLogVariance 0xffff \
+        currentUtcOffset 37 leap61 0 leap59 0 currentUtcOffsetValid 1 \
+        ptpTimescale 1 timeTraceable 1 frequencyTraceable 0 \
+        timeSource 0xa0"
+sending: SET GRANDMASTER_SETTINGS_NP
+```
+
+where:
+- `u` is used to select the Unix Domain Socket transport
+- `b` is used to specify the boundary hops value in sent messages
+- `t` is used to specify the transport specific field in sent messages as a hexadecimal number.
+
+
+### phc2sys - synchronize the System clock with PHC:
+```bash
+$ sudo linuxptp-rt.phc2sys -s eno1 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m
+```
+TBA, need access to /run/phc2sys.*
+
+### hwstamp-ctl - enable hardware timestamping:
+```bash
+$ sudo linuxptp-rt.hwstamp-ctl -i eno1 -t 1 -r 9
+current settings:
+tx_type 1
+rx_filter 12
+new settings:
+tx_type 1
+rx_filter 12
+```
+where:
+- `eno1` is interface device to use
+- `t` is whether enable or disable hardware time stamping for outgoing packets
+- `r` is the type of incoming packets should be time stamped
+
+### phc_ctl - control a PHC clock:
+```bash
+$ sudo linuxptp-rt.phc-ctl eno1 get
+phc_ctl[45040.084]: clock time is 1689781163.846408401 or Wed Jul 19 17:39:23 2023
+```
+where:
+- `eno1` is the interface device to use
+- `get` is the command to get the current time of the PHC clock device
+
+
+
+### Timemaster - run Network Time Protocol (NTP) with Precision Time Protocol (PTP) as reference clocks:
+```bash
+sudo linuxptp-rt.timemaster -f /etc/linuxptp/timemaster.conf 
+```
+TBA, need relocate timemaster.conf under snap file location
+
+### ts2phc - synchronize one or more PTP Hardware Clocks using external time stamps:
+
+```bash
+$ sudo linuxptp-rt.ts2phc -c eno1 -m
+```
+TBA
+
+### tz2alt - monitor daylight savings time changes and publishes them to PTP stack:
+```bash
+$ sudo linuxptp-rt.tz2alt -z Europe/Berlin --leapfile /usr/share/zoneinfo/leap-seconds.list
+```
+TBA, needs access to /run/tztool.*
 ## Alias
 
 Add [alias](https://snapcraft.io/docs/commands-and-aliases) to run the command without the namespace:
