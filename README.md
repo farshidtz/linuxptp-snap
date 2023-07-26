@@ -90,6 +90,8 @@ snap connect linuxptp-rt:log-observe
 snap connect linuxptp-rt:ptp
 snap connect linuxptp-rt:system-dev-pts
 snap connect linuxptp-rt:system-dev-ptp0 
+snap connect linuxptp-rt:system-run-ptp4l
+snap connect linuxptp-rt:system-run
 ```
 
 ## Examples:
@@ -113,7 +115,10 @@ where:
 - `m` is used to print messages to stdout
 
 ### nsm - NetSync Monitor (NSM) client
-TBA
+```bash
+$ sudo linuxptp-rt.nsm -i eno1 -f /etc/linuxptp/ptp4l.conf 
+```
+TBA, needs relocate ptp4l.conf under snap file location
 
 ### pmc - synchronize the system clock:
 ```bash
@@ -134,8 +139,16 @@ where:
 ### phc2sys - synchronize the System clock with PHC:
 ```bash
 $ sudo linuxptp-rt.phc2sys -s eno1 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m
+phc2sys[39606.945]: Waiting for ptp4l...
 ```
-TBA, need access to /run/phc2sys.*
+
+where:
+- `s` is the source clock
+- `c` is the time sink by device
+- `step_threshold` is the step threshold of the servo
+- `transportSpecific` is the transport specific field. 
+- `w` waits until ptp4l is in a synchronized state
+- `m` prints messages to the standard output
 
 ### hwstamp-ctl - enable hardware timestamping:
 ```bash
@@ -167,20 +180,26 @@ where:
 ```bash
 sudo linuxptp-rt.timemaster -f /etc/linuxptp/timemaster.conf 
 ```
-TBA, need relocate timemaster.conf under snap file location
+TBA, needs relocate timemaster.conf under snap file location
 
 ### ts2phc - synchronize one or more PTP Hardware Clocks using external time stamps:
 
 ```bash
 $ sudo linuxptp-rt.ts2phc -c eno1 -m
+ts2phc[70509.819]: cannot open /dev/ptp0 for eno1: Operation not permitted
 ```
 TBA
 
 ### tz2alt - monitor daylight savings time changes and publishes them to PTP stack:
 ```bash
 $ sudo linuxptp-rt.tz2alt -z Europe/Berlin --leapfile /usr/share/zoneinfo/leap-seconds.list
+tz2alt[70278.242]: truncating time zone display name from Europe/Berlin to Berlin
+tz2alt[70278.245]: next discontinuity Wed Jul 26 17:03:22 2023 Europe/Berlin
 ```
-TBA, needs access to /run/tztool.*
+where:
+- `z` is the timezone
+- `leapfile` is the path to the current leap seconds definition file
+
 ## Alias
 
 Add [alias](https://snapcraft.io/docs/commands-and-aliases) to run the command without the namespace:
@@ -196,5 +215,5 @@ $ ptp4l -v
  ```
 
  ## References
- - https://manpages.debian.org/unstable/linuxptp/ptp4l.8.en.html
+ - https://manpages.debian.org/unstable/linuxptp/index.html
  - https://tsn.readthedocs.io/timesync.html

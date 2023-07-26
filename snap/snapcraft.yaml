@@ -19,6 +19,17 @@ plugs:
     interface: system-files
     write:
       - /dev/pts
+  system-run-ptp4l:
+    interface: system-files
+    write:
+      - /run/ptp4l
+      - /run/ptp4lro
+  # Access to the Unix Domain Socket (UDS) file 
+  # located in /run/pmc.* used by pmc application
+  system-run:
+    interface: system-files
+    write:
+      - /run
 
 parts:
   linuxptp:
@@ -73,6 +84,7 @@ apps:
       # Access to PTP subsystem and files
       - ptp
       - system-dev-ptp0
+      - system-run
       # Access to system date and time
       - time-control
       # Access to system logs and data
@@ -86,6 +98,7 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
+      - system-run
   ptp4l:
     command: usr/local/sbin/ptp4l
     plugs:
@@ -98,6 +111,7 @@ apps:
       - ptp
       - system-dev-ptp0
       - system-dev-pts
+      - system-run-ptp4l
 
   timemaster:
     command: usr/local/sbin/timemaster
@@ -106,6 +120,7 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
+      - system-run
       
   ts2phc:
     command: usr/local/sbin/ts2phc
@@ -127,4 +142,5 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
+      - system-run
       
