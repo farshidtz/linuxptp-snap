@@ -8,7 +8,28 @@ license: GPL-2.0-only
 adopt-info: linuxptp
 
 grade: devel
-confinement: devmode
+confinement: strict
+
+plugs:
+  system-dev-ptp0:
+    interface: system-files
+    write:
+      - /dev/ptp0
+  system-dev-pts:
+    interface: system-files
+    write:
+      - /dev/pts
+  system-run-ptp4l:
+    interface: system-files
+    write:
+      - /run/ptp4l
+      - /run/ptp4lro
+  # Access to the Unix Domain Socket (UDS) file 
+  # located in /run/pmc.* used by pmc application
+  system-run:
+    interface: system-files
+    write:
+      - /run
 
 parts:
   linuxptp:
@@ -31,19 +52,95 @@ parts:
 apps:
   hwstamp-ctl: # renamed to bypass character restrictions
     command: usr/local/sbin/hwstamp_ctl
+    plugs:
+      - network-bind
+      - network-control
   nsm:
     command: usr/local/sbin/nsm
+    plugs:
+      - network-bind
+      - network-control
+      # Access to PTP subsystem and files
+      - ptp
   phc-ctl: # renamed to bypass character restrictions
     command: usr/local/sbin/phc_ctl
+    plugs:
+      - network-bind
+      - network-control
+      # Access to PTP subsystem and files
+      - ptp
+      - system-dev-ptp0
+      # Access to system date and time
+      - time-control
+      # Access to system logs and data
+      - system-backup
+      - log-observe
+
   phc2sys:
     command: usr/local/sbin/phc2sys
+    plugs:
+      - network-bind
+      - network-control
+      # Access to PTP subsystem and files
+      - ptp
+      - system-dev-ptp0
+      - system-run
+      # Access to system date and time
+      - time-control
+      # Access to system logs and data
+      - system-backup
+      - log-observe
+
   pmc:
     command: usr/local/sbin/pmc
+    plugs:
+      - network-bind
+      - network-control
+      # Access to PTP subsystem and files
+      - ptp
+      - system-run
   ptp4l:
     command: usr/local/sbin/ptp4l
+    plugs:
+      - network
+      - network-bind
+      - network-control
+      # Access to system date and time
+      - time-control
+      # Access to PTP subsystem and files
+      - ptp
+      - system-dev-ptp0
+      - system-dev-pts
+      - system-run-ptp4l
+
   timemaster:
     command: usr/local/sbin/timemaster
+    plugs:
+      - network-bind
+      - network-control
+      # Access to PTP subsystem and files
+      - ptp
+      - system-run
+      
   ts2phc:
     command: usr/local/sbin/ts2phc
+    plugs:
+      - network-bind
+      - network-control
+      # Access to PTP subsystem and files
+      - ptp
+      - system-dev-ptp0
+      # Access to system date and time
+      - time-control
+      # Access to read system logs and data
+      - system-backup
+      - log-observe
   tz2alt:
     command: usr/local/sbin/tz2alt
+    plugs:
+      - network-bind
+      - network-control
+      # Access to PTP subsystem and files
+      - ptp
+      - system-run
+      
