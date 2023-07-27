@@ -44,10 +44,18 @@ parts:
       DOC=$CRAFT_PART_INSTALL/usr/share/doc
       mkdir -p $DOC
       cp COPYING $DOC/
-      # Strange location to place config files, but similar to the DEB
-      cp -vr configs $DOC/
+
+      mkdir -p $SNAPCRAFT_PART_INSTALL/etc
+      cp -v configs/* $SNAPCRAFT_PART_INSTALL/etc
 
       craftctl set version="$(git describe --tags | sed s/v//)+snap"
+      
+  local:
+    plugin: nil
+    source: snap/local
+    override-build: |
+      mkdir -p $SNAPCRAFT_PART_INSTALL/etc
+      cp -v etc/* $SNAPCRAFT_PART_INSTALL/etc/
 
 apps:
   hwstamp-ctl: # renamed to bypass character restrictions
