@@ -10,29 +10,38 @@ adopt-info: linuxptp
 grade: devel
 confinement: strict
 
-plugs:
-  system-dev-ptp0:
-    interface: system-files
-    write:
-      - /dev/ptp0
-  system-dev-pts:
-    interface: system-files
-    write:
-      - /dev/pts
-  system-run-ptp4l:
-    interface: system-files
-    write:
-      - /run/ptp4l
-      - /run/ptp4lro
-  # Access to the Unix Domain Socket (UDS) file 
-  # located in /run/pmc.* used by pmc application
-  system-run:
-    interface: system-files
-    write:
-      - /run
+# plugs:
+#   system-dev-ptp0:
+#     interface: system-files
+#     write:
+#       - /dev/ptp0
+#   system-dev-pts:
+#     interface: system-files
+#     write:
+#       - /dev/pts
+#   system-run-ptp4l:
+#     interface: system-files
+#     write:
+#       - /run/ptp4l
+#       - /run/ptp4lro
+#   # Access to the Unix Domain Socket (UDS) file 
+#   # located in /run/pmc.* used by pmc application
+#   system-run:
+#     interface: system-files
+#     write:
+#       - /run
 
 parts:
+  local:
+    plugin: nil
+    source: snap/local
+    override-build: |
+      CONF=$SNAPCRAFT_PART_INSTALL/etc
+      mkdir -p $CONF
+      cp -v etc/* $CONF/
+  
   linuxptp:
+    after: [local]
     plugin: make
     source: git://git.code.sf.net/p/linuxptp/code
     source-tag: v4.0
@@ -45,18 +54,23 @@ parts:
       mkdir -p $DOC
       cp COPYING $DOC/
 
-      mkdir -p $SNAPCRAFT_PART_INSTALL/etc
-      cp -v configs/* $SNAPCRAFT_PART_INSTALL/etc
+      CONF=$SNAPCRAFT_PART_INSTALL/etc
+      mkdir -p $CONF
+      cp -v configs/* $CONF
+
+      # Replace /var/run with /run/snap.linuxptp-rt
+      cp $CONF/default.cfg $CONF/snap.cfg
+      sed -i 's/\/var\/run/\/run\/snap.linuxptp-rt/g' $CONF/snap.cfg
+
+      echo "
+      # Additional configuration for the snap
+      refclock_sock_address	/run/snap.linuxptp-rt/refclock.ptp.sock
+      uds_address		        /run/snap.linuxptp-rt/ptp4l
+      uds_ro_address		    /run/snap.linuxptp-rt/ptp4lro
+      " >> $CONF/gPTP.cfg
 
       craftctl set version="$(git describe --tags | sed s/v//)+snap"
       
-  local:
-    plugin: nil
-    source: snap/local
-    override-build: |
-      mkdir -p $SNAPCRAFT_PART_INSTALL/etc
-      cp -v etc/* $SNAPCRAFT_PART_INSTALL/etc/
-
 apps:
   hwstamp-ctl: # renamed to bypass character restrictions
     command: usr/local/sbin/hwstamp_ctl
@@ -77,7 +91,6 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
-      - system-dev-ptp0
       # Access to system date and time
       - time-control
       # Access to system logs and data
@@ -91,8 +104,6 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
-      - system-dev-ptp0
-      - system-run
       # Access to system date and time
       - time-control
       # Access to system logs and data
@@ -106,7 +117,6 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
-      - system-run
   ptp4l:
     command: usr/local/sbin/ptp4l
     plugs:
@@ -117,9 +127,6 @@ apps:
       - time-control
       # Access to PTP subsystem and files
       - ptp
-      - system-dev-ptp0
-      - system-dev-pts
-      - system-run-ptp4l
 
   timemaster:
     command: usr/local/sbin/timemaster
@@ -128,7 +135,6 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
-      - system-run
       
   ts2phc:
     command: usr/local/sbin/ts2phc
@@ -137,7 +143,6 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
-      - system-dev-ptp0
       # Access to system date and time
       - time-control
       # Access to read system logs and data
@@ -150,5 +155,4 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
-      - system-run
       
