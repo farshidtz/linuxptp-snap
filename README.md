@@ -73,6 +73,8 @@ $ ptp4l -v
 
 ## Usage examples
 
+**In the following examples, `eno1` is the Ethernet interface name.**
+
 ### ptp4l
 Synchronize the PTP Hardware Clock (PHC):
 ```bash
@@ -87,10 +89,7 @@ ptp4l[10995.795]: port 1 (eno1): assuming the grand master role
 ```
 
 where:
-- `eno1` is interface device to use
-- `gPTP.cfg` is the configuration file
-- `step_threshold` is the maximum offset the servo will correct by changing the clock frequency (phase when using nullf servo) instead of stepping the clock
-- `m` is used to print messages to stdout
+- `-f` is set to the gPTP configuration file in the snap
 
 ### nsm
 NetSync Monitor (NSM) client:
@@ -98,10 +97,11 @@ NetSync Monitor (NSM) client:
 $ sudo linuxptp-rt.nsm -i eno1 -f /snap/linuxptp-rt/current/etc/ptp4l.conf 
 ```
 
+
 ### pmc
 Synchronize the system clock:
 ```bash
-$ sudo linuxptp-rt.pmc -u -b 0 -t 1 "SET GRANDMASTER_SETTINGS_NP clockClass 248 \
+$ sudo linuxptp-rt.pmc -i /run/snap.linuxptp-rt/pmc.$pid -u -b 0 -t 1 "SET GRANDMASTER_SETTINGS_NP clockClass 248 \
         clockAccuracy 0xfe offsetScaledLogVariance 0xffff \
         currentUtcOffset 37 leap61 0 leap59 0 currentUtcOffsetValid 1 \
         ptpTimescale 1 timeTraceable 1 frequencyTraceable 0 \
@@ -110,28 +110,23 @@ sending: SET GRANDMASTER_SETTINGS_NP
 ```
 
 where:
-- `u` is used to select the Unix Domain Socket transport
-- `b` is used to specify the boundary hops value in sent messages
-- `t` is used to specify the transport specific field in sent messages as a hexadecimal number.
+- `-i` is set to change the default interface to use for UDS.
 
 
-### phc2sys
-Synchronize the system clock with PHC:
+### ❌ phc2sys
+Run `ptp4l` and synchronize the system clock with PHC:
 ```bash
 $ sudo linuxptp-rt.phc2sys -s eno1 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m
-phc2sys[39606.945]: Waiting for ptp4l...
+phc2sys[21132.098]: uds: bind failed: Permission denied
+phc2sys[21132.098]: failed to open transport
+phc2sys[21132.098]: failed to create pmc
 ```
 
-where:
-- `s` is the source clock
-- `c` is the time sink by device
-- `step_threshold` is the step threshold of the servo
-- `transportSpecific` is the transport specific field. 
-- `w` waits until ptp4l is in a synchronized state
-- `m` prints messages to the standard output
+🚩 By default, phc2sys uses `/run/phc2sys.$pid` as the default path to UDS interface. This is not allowed within the snap confinement. There is no [CLI flag or configuration field](https://www.mankier.com/8/phc2sys) to override it. The path is hard-coded [here](https://github.com/richardcochran/linuxptp/blob/master/phc2sys.c#L1445).
+
 
 ### hwstamp-ctl
-Enable hardware time stamping:
+Enable hardware timestamping:
 ```bash
 $ sudo linuxptp-rt.hwstamp-ctl -i eno1 -t 1 -r 9
 current settings:
@@ -141,10 +136,6 @@ new settings:
 tx_type 1
 rx_filter 12
 ```
-where:
-- `eno1` is interface device to use
-- `t` is whether enable or disable hardware time stamping for outgoing packets
-- `r` is the type of incoming packets should be time stamped
 
 ### phc_ctl
 Control a PHC clock:
@@ -152,28 +143,24 @@ Control a PHC clock:
 $ sudo linuxptp-rt.phc-ctl eno1 get
 phc_ctl[45040.084]: clock time is 1689781163.846408401 or Wed Jul 19 17:39:23 2023
 ```
-where:
-- `eno1` is the interface device to use
-- `get` is the command to get the current time of the PHC clock device
 
-
-
-### timemaster
+### 🚧 timemaster
 Run Network Time Protocol (NTP) with PTP as reference clocks:
 ```bash
-sudo linuxptp-rt.timemaster -f /snap/linuxptp-rt/current/etc/timemaster.conf 
+$ sudo linuxptp-rt.timemaster -f /snap/linuxptp-rt/current/etc/timemaster.conf -m
+timemaster[22360.873]: failed to create /var/run/timemaster: Permission denied
+timemaster[22360.873]: exiting
 ```
 
-### ts2phc
+### 🚧 ts2phc
 Synchronize one or more PHC using external time stamps:
 
 ```bash
 $ sudo linuxptp-rt.ts2phc -c eno1 -m
 ts2phc[70509.819]: cannot open /dev/ptp0 for eno1: Operation not permitted
 ```
-TBA
 
-### tz2alt
+### 🚧 tz2alt
 Monitor daylight savings time changes and publishes them to PTP stack:
 ```bash
 $ sudo linuxptp-rt.tz2alt -z Europe/Berlin --leapfile /usr/share/zoneinfo/leap-seconds.list
@@ -183,12 +170,6 @@ tz2alt[70278.245]: next discontinuity Wed Jul 26 17:03:22 2023 Europe/Berlin
 where:
 - `z` is the timezone
 - `leapfile` is the path to the current leap seconds definition file
-
-
-## Configuration files
-The configuration files packaged in the snap are sourced from two locations:
-- LinuxPTP's source repo
-- This repo (ptp4l.conf and timemaster.conf). These files have been taken from the linuxptp_3.1.1-3_amd64.deb package from Ubuntu archives.
 
 
 ## References
