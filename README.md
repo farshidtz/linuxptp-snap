@@ -151,9 +151,9 @@ phc_ctl[45040.084]: clock time is 1689781163.846408401 or Wed Jul 19 17:39:23 20
 ### 🚧 timemaster
 Run Network Time Protocol (NTP) with PTP as reference clocks:
 ```bash
-$ sudo linuxptp-rt.timemaster -f /snap/linuxptp-rt/current/etc/timemaster.conf -m
-timemaster[22360.873]: failed to create /var/run/timemaster: Permission denied
-timemaster[22360.873]: exiting
+$ sudo linuxptp-rt.timemaster -f /var/snap/linuxptp-rt/common/timemaster.conf -m 
+timemaster[5368.389]: failed to spawn /usr/sbin/chronyd: No such file or directory
+timemaster[5368.389]: exiting
 ```
 
 ### 🚧 ts2phc
