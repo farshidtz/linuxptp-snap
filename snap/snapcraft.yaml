@@ -48,8 +48,6 @@ parts:
     source-depth: 1
     # make-parameters: 
     override-build: |
-      craftctl default
-
       DOC=$CRAFT_PART_INSTALL/usr/share/doc
       mkdir -p $DOC
       cp COPYING $DOC/
@@ -61,6 +59,7 @@ parts:
       # Replace /var/run with /run/snap.linuxptp-rt
       cp $CONF/default.cfg $CONF/snap.cfg
       sed -i 's/\/var\/run/\/run\/snap.linuxptp-rt/g' $CONF/snap.cfg
+      sed -i 's/\/var\/run\/phc2sys/\/run\/snap.linuxptp-rt\/phc2sys/g' phc2sys.c
 
       echo "
       # Additional configuration for the snap
@@ -70,6 +69,8 @@ parts:
       " >> $CONF/gPTP.cfg
 
       craftctl set version="$(git describe --tags | sed s/v//)+snap"
+      
+      craftctl default
       
 apps:
   hwstamp-ctl: # renamed to bypass character restrictions

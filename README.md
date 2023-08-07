@@ -113,16 +113,20 @@ where:
 - `-i` is set to change the default interface to use for UDS.
 
 
-### ❌ phc2sys
+### phc2sys
 Run `ptp4l` and synchronize the system clock with PHC:
 ```bash
-$ sudo linuxptp-rt.phc2sys -s eno1 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m
-phc2sys[21132.098]: uds: bind failed: Permission denied
-phc2sys[21132.098]: failed to open transport
-phc2sys[21132.098]: failed to create pmc
+$ $ sudo linuxptp-rt.phc2sys -s eno1 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m -z /run/snap.linuxptp-rt/ptp4l
+phc2sys[2429.376]: CLOCK_REALTIME phc offset 37488402189 s0 freq    +781 delay      0
+phc2sys[2430.376]: CLOCK_REALTIME phc offset 37488450430 s1 freq  +48990 delay      0
+phc2sys[2431.377]: CLOCK_REALTIME phc offset 37498466839 s0 freq  +48990 delay      0
+phc2sys[2432.377]: CLOCK_REALTIME phc offset 37498427594 s0 freq  +48990 delay      0
+phc2sys[2433.378]: CLOCK_REALTIME phc offset 37498388319 s1 freq   +9735 delay      0
+^C
 ```
 
-🚩 By default, phc2sys uses `/run/phc2sys.$pid` as the default path to UDS interface. This is not allowed within the snap confinement. There is no [CLI flag or configuration field](https://www.mankier.com/8/phc2sys) to override it. The path is hard-coded [here](https://github.com/richardcochran/linuxptp/blob/master/phc2sys.c#L1445).
+where:
+- `-z` sets the server address for UDS
 
 
 ### hwstamp-ctl
