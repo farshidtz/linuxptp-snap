@@ -10,27 +10,6 @@ adopt-info: linuxptp
 grade: devel
 confinement: strict
 
-# plugs:
-#   system-dev-ptp0:
-#     interface: system-files
-#     write:
-#       - /dev/ptp0
-#   system-dev-pts:
-#     interface: system-files
-#     write:
-#       - /dev/pts
-#   system-run-ptp4l:
-#     interface: system-files
-#     write:
-#       - /run/ptp4l
-#       - /run/ptp4lro
-#   # Access to the Unix Domain Socket (UDS) file 
-#   # located in /run/pmc.* used by pmc application
-#   system-run:
-#     interface: system-files
-#     write:
-#       - /run
-
 parts:
   local:
     plugin: nil
