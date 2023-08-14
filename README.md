@@ -25,6 +25,7 @@ The default config files are placed under `/snap/linuxptp-rt/current/etc`:
 ├── gPTP.cfg
 ├── P2P-TC.cfg
 ├── ptp4l.conf
+├── snap.cfg
 ├── snmpd.conf
 ├── timemaster.conf
 ├── ts2phc-generic.cfg
@@ -49,10 +50,6 @@ snap connect linuxptp-rt:log-observe
 
 # Access to PTP subsystem and files
 snap connect linuxptp-rt:ptp
-snap connect linuxptp-rt:system-dev-pts
-snap connect linuxptp-rt:system-dev-ptp0 
-snap connect linuxptp-rt:system-run-ptp4l
-snap connect linuxptp-rt:system-run
 ```
 
 Add [aliases](https://snapcraft.io/docs/commands-and-aliases) to run the commands without the namespace.For example:
@@ -78,35 +75,35 @@ For usage examples, refer to the wiki.
 
 ## Usage examples
 
+**In the following examples, `eth0` is the Ethernet interface name.**
+
 ### ptp4l
 Synchronize the PTP Hardware Clock (PHC):
 ```bash
-$ sudo linuxptp-rt.ptp4l -i eno1 -f /snap/linuxptp-rt/current/etc/gPTP.cfg --step_threshold=1 -m
+$ sudo linuxptp-rt.ptp4l -i eth0 -f /snap/linuxptp-rt/current/etc/gPTP.cfg --step_threshold=1 -m
 ptp4l[10992.160]: selected /dev/ptp0 as PTP clock
-ptp4l[10992.246]: port 1 (eno1): INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l[10992.246]: port 1 (eth0): INITIALIZING to LISTENING on INIT_COMPLETE
 ptp4l[10992.247]: port 0 (/var/run/ptp4l): INITIALIZING to LISTENING on INIT_COMPLETE
 ptp4l[10992.247]: port 0 (/var/run/ptp4lro): INITIALIZING to LISTENING on INIT_COMPLETE
-ptp4l[10995.795]: port 1 (eno1): LISTENING to MASTER on ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES
+ptp4l[10995.795]: port 1 (eth0): LISTENING to MASTER on ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES
 ptp4l[10995.795]: selected local clock 04421a.fffe.078056 as best master
-ptp4l[10995.795]: port 1 (eno1): assuming the grand master role
+ptp4l[10995.795]: port 1 (eth0): assuming the grand master role
 ```
 
 where:
-- `eno1` is interface device to use
-- `gPTP.cfg` is the configuration file
-- `step_threshold` is the maximum offset the servo will correct by changing the clock frequency (phase when using nullf servo) instead of stepping the clock
-- `m` is used to print messages to stdout
+- `-f` is set to the gPTP configuration file in the snap
 
 ### nsm
 NetSync Monitor (NSM) client:
 ```bash
-$ sudo linuxptp-rt.nsm -i eno1 -f /snap/linuxptp-rt/current/etc/ptp4l.conf 
+$ sudo linuxptp-rt.nsm -i eth0 -f /snap/linuxptp-rt/current/etc/ptp4l.conf 
 ```
+
 
 ### pmc
 Synchronize the system clock:
 ```bash
-$ sudo linuxptp-rt.pmc -u -b 0 -t 1 "SET GRANDMASTER_SETTINGS_NP clockClass 248 \
+$ sudo linuxptp-rt.pmc -i /run/snap.linuxptp-rt/pmc.$pid -u -b 0 -t 1 "SET GRANDMASTER_SETTINGS_NP clockClass 248 \
         clockAccuracy 0xfe offsetScaledLogVariance 0xffff \
         currentUtcOffset 37 leap61 0 leap59 0 currentUtcOffsetValid 1 \
         ptpTimescale 1 timeTraceable 1 frequencyTraceable 0 \
@@ -115,30 +112,29 @@ sending: SET GRANDMASTER_SETTINGS_NP
 ```
 
 where:
-- `u` is used to select the Unix Domain Socket transport
-- `b` is used to specify the boundary hops value in sent messages
-- `t` is used to specify the transport specific field in sent messages as a hexadecimal number.
+- `-i` is set to change the default interface to use for UDS.
 
 
 ### phc2sys
-Synchronize the system clock with PHC:
+Run `ptp4l` and synchronize the system clock with PHC:
 ```bash
-$ sudo linuxptp-rt.phc2sys -s eno1 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m
-phc2sys[39606.945]: Waiting for ptp4l...
+$ sudo linuxptp-rt.phc2sys -s eth0 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m -z /run/snap.linuxptp-rt/ptp4l
+phc2sys[2429.376]: CLOCK_REALTIME phc offset 37488402189 s0 freq    +781 delay      0
+phc2sys[2430.376]: CLOCK_REALTIME phc offset 37488450430 s1 freq  +48990 delay      0
+phc2sys[2431.377]: CLOCK_REALTIME phc offset 37498466839 s0 freq  +48990 delay      0
+phc2sys[2432.377]: CLOCK_REALTIME phc offset 37498427594 s0 freq  +48990 delay      0
+phc2sys[2433.378]: CLOCK_REALTIME phc offset 37498388319 s1 freq   +9735 delay      0
+^C
 ```
 
 where:
-- `s` is the source clock
-- `c` is the time sink by device
-- `step_threshold` is the step threshold of the servo
-- `transportSpecific` is the transport specific field. 
-- `w` waits until ptp4l is in a synchronized state
-- `m` prints messages to the standard output
+- `-z` sets the server address for UDS
+
 
 ### hwstamp-ctl
-Enable hardware time stamping:
+Enable hardware timestamping:
 ```bash
-$ sudo linuxptp-rt.hwstamp-ctl -i eno1 -t 1 -r 9
+$ sudo linuxptp-rt.hwstamp-ctl -i eth0 -t 1 -r 9
 current settings:
 tx_type 1
 rx_filter 12
@@ -146,37 +142,30 @@ new settings:
 tx_type 1
 rx_filter 12
 ```
-where:
-- `eno1` is interface device to use
-- `t` is whether enable or disable hardware time stamping for outgoing packets
-- `r` is the type of incoming packets should be time stamped
 
 ### phc_ctl
 Control a PHC clock:
 ```bash
-$ sudo linuxptp-rt.phc-ctl eno1 get
+$ sudo linuxptp-rt.phc-ctl eth0 get
 phc_ctl[45040.084]: clock time is 1689781163.846408401 or Wed Jul 19 17:39:23 2023
 ```
-where:
-- `eno1` is the interface device to use
-- `get` is the command to get the current time of the PHC clock device
 
-
-
-### timemaster
+### 🚧 timemaster
 Run Network Time Protocol (NTP) with PTP as reference clocks:
 ```bash
-sudo linuxptp-rt.timemaster -f /snap/linuxptp-rt/current/etc/timemaster.conf 
+$ sudo linuxptp-rt.timemaster -f /var/snap/linuxptp-rt/common/timemaster.conf -m 
+timemaster[5368.389]: failed to spawn /usr/sbin/chronyd: No such file or directory
+timemaster[5368.389]: exiting
 ```
 
-### ts2phc
+### 🚧 ts2phc
 Synchronize one or more PHC using external time stamps:
 
 ```bash
-$ sudo linuxptp-rt.ts2phc -c eno1 -m
-ts2phc[70509.819]: cannot open /dev/ptp0 for eno1: Operation not permitted
+$ sudo linuxptp-rt.ts2phc -c eth0 -m 
+ts2phc[6307.476]: PTP_EXTTS_REQUEST2 failed: Operation not supported
+failed to initialize PPS sinks
 ```
-TBA
 
 ### tz2alt
 Monitor daylight savings time changes and publishes them to PTP stack:
@@ -185,9 +174,6 @@ $ sudo linuxptp-rt.tz2alt -z Europe/Berlin --leapfile /usr/share/zoneinfo/leap-s
 tz2alt[70278.242]: truncating time zone display name from Europe/Berlin to Berlin
 tz2alt[70278.245]: next discontinuity Wed Jul 26 17:03:22 2023 Europe/Berlin
 ```
-where:
-- `z` is the timezone
-- `leapfile` is the path to the current leap seconds definition file
 
 ## References
  - https://manpages.debian.org/unstable/linuxptp/index.html
