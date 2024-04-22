@@ -4,7 +4,7 @@ summary: Linux Precision Time Protocol (PTP)
 description: |
   Snap packaging for linuxptp,
   an implementation of the Precision Time Protocol (PTP) according to IEEE standard 1588 for Linux.
-license: GPL-2.0
+license: GPL-2.0-or-later
 adopt-info: linuxptp
 
 grade: devel
