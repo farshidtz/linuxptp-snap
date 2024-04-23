@@ -101,7 +101,7 @@ $ sudo linuxptp-rt.nsm -i eth0 -f /snap/linuxptp-rt/current/etc/ptp4l.conf
 
 
 ### pmc
-Set up Grand Master Clock with UTC leap second offset:
+Configure the system's UTC-TAI offset (leap seconds):
 ```bash
 $ sudo linuxptp-rt.pmc -u -b 0 -t 1 \
   -s /run/snap.linuxptp-rt/ptp4l \
