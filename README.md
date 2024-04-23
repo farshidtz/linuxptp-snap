@@ -101,9 +101,12 @@ $ sudo linuxptp-rt.nsm -i eth0 -f /snap/linuxptp-rt/current/etc/ptp4l.conf
 
 
 ### pmc
-Synchronize the system clock:
+Configure the system's UTC-TAI offset (leap seconds):
 ```bash
-$ sudo linuxptp-rt.pmc -i /run/snap.linuxptp-rt/pmc.$pid -u -b 0 -t 1 "SET GRANDMASTER_SETTINGS_NP clockClass 248 \
+$ sudo linuxptp-rt.pmc -u -b 0 -t 1 \
+  -s /run/snap.linuxptp-rt/ptp4l \
+  -i /run/snap.linuxptp-rt/pmc.$pid \
+        "SET GRANDMASTER_SETTINGS_NP clockClass 248 \
         clockAccuracy 0xfe offsetScaledLogVariance 0xffff \
         currentUtcOffset 37 leap61 0 leap59 0 currentUtcOffsetValid 1 \
         ptpTimescale 1 timeTraceable 1 frequencyTraceable 0 \
@@ -112,7 +115,9 @@ sending: SET GRANDMASTER_SETTINGS_NP
 ```
 
 where:
-- `-i` is set to change the default interface to use for UDS.
+- `-u` specifies the usage of Unix Domain Sockets for inter process communication
+- `-i` is set to change the default Unix Domain Socket for PTP Management Client
+- `-s` is set to change the default PTP Server Unix Domain Socket
 
 
 ### phc2sys
