@@ -8,10 +8,40 @@ snapcraft -v
 
 ### Install
 ```bash
-snap install --dangerous *.snap
+snap install --dangerous ./linuxptp-rt_XXX.snap
 ```
 
-### Configure
+### Configure snap
+
+Grant access to necessary resources:
+```bash
+# Access to network setting
+snap connect linuxptp-rt:network-control
+# Access to system date and time
+snap connect linuxptp-rt:time-control
+
+# Access to system logs and data
+snap connect linuxptp-rt:system-backup
+snap connect linuxptp-rt:log-observe
+
+# Access to PTP subsystem and files
+snap connect linuxptp-rt:ptp
+```
+
+(optional) Add [aliases](https://snapcraft.io/docs/commands-and-aliases) to run the commands without the namespace. For example:
+```bash
+$ snap alias linuxptp-rt.ptp4l ptp4l
+Added:
+  - linuxptp-rt.ptp4l as ptp4l
+
+$ which ptp4l
+/snap/bin/ptp4l
+
+$ ptp4l -v
+4.0
+```
+
+### Configure linuxptp
 The default config files are placed under `/snap/linuxptp-rt/current/etc`:
 ```
 /snap/linuxptp-rt/current/etc
@@ -37,41 +67,7 @@ The configuration files are sourced from two locations:
 - LinuxPTP's [source code](https://github.com/richardcochran/linuxptp)
 - This repo (ptp4l.conf and timemaster.conf). These files have been taken from the linuxptp_3.1.1-3_amd64.deb package from Ubuntu archives.
 
-Grant access to necessary resources:
-```bash
-# Access to network setting
-snap connect linuxptp-rt:network-control
-# Access to system date and time
-snap connect linuxptp-rt:time-control
-
-# Access to system logs and data
-snap connect linuxptp-rt:system-backup  
-snap connect linuxptp-rt:log-observe   
-
-# Access to PTP subsystem and files
-snap connect linuxptp-rt:ptp
-```
-
-Add [aliases](https://snapcraft.io/docs/commands-and-aliases) to run the commands without the namespace.For example:
-```bash
-$ snap alias linuxptp-rt.ptp4l ptp4l
-Added:
-  - linuxptp-rt.ptp4l as ptp4l
-
-$ which ptp4l
-/snap/bin/ptp4l
-
-$ ptp4l -v
-4.0
-```
-
-
-For usage examples, refer to the wiki.
-
-## To Do
-- [ ] Fix ts2phc permission error - see examples in wiki
-- [ ] Check ptp4l and ptp4lro paths - config files point to /var/run/* but system interface is for /run/*
-- [ ] Clarify chronyd and ntpd dependencies for timemaster - see its config file
+> Note: linuxptp uses unix domain sockets for inter-process communication. By default it stores the UDS file handles under `/run` or `/var/run`. Neither of these two system directories can be accessed from inside a strictly confined snap. We therefore change these UDSs to be created under `/run/snap.linuxptp-rt/`, which is a special directory that may be accessed by the snap. Please keep this in mind when running any of the linuxptp utilities.
 
 ## Usage examples
 
@@ -88,6 +84,7 @@ ptp4l[5357.331]: port 0 (/run/snap.linuxptp-rt/ptp4lro): INITIALIZING to LISTENI
 ptp4l[5361.107]: port 1 (eth0): LISTENING to MASTER on ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES
 ptp4l[5361.107]: selected local clock 2ccf67.fffe.1cbba1 as best master
 ptp4l[5361.107]: port 1 (eth0): assuming the grand master role
+^C
 ```
 
 where:
@@ -96,7 +93,7 @@ where:
 ### nsm
 NetSync Monitor (NSM) client:
 ```bash
-$ sudo linuxptp-rt.nsm -i eth0 -f /snap/linuxptp-rt/current/etc/ptp4l.conf 
+$ sudo linuxptp-rt.nsm -i eth0 -f /snap/linuxptp-rt/current/etc/ptp4l.conf
 ```
 
 
@@ -167,7 +164,7 @@ timemaster[6519.236]: exiting
 Synchronize one or more PHC using external time stamps:
 
 ```bash
-$ sudo linuxptp-rt.ts2phc -c eth0 -m 
+$ sudo linuxptp-rt.ts2phc -c eth0 -m
 ts2phc[6307.476]: PTP_EXTTS_REQUEST2 failed: Operation not supported
 failed to initialize PPS sinks
 ```
@@ -178,6 +175,44 @@ Monitor daylight savings time changes and publishes them to PTP stack:
 $ sudo linuxptp-rt.tz2alt -z Europe/Berlin --leapfile /usr/share/zoneinfo/leap-seconds.list
 tz2alt[70278.242]: truncating time zone display name from Europe/Berlin to Berlin
 tz2alt[70278.245]: next discontinuity Wed Jul 26 17:03:22 2023 Europe/Berlin
+```
+
+## Examples
+### gPTP
+Master and slave, autoselected using the Best Master Clock Algorithm (BMCA)
+```
+$ sudo linuxptp-rt.ptp4l -i eth0 -f /snap/linuxptp-rt/current/etc/gPTP.cfg --step_threshold=1 -m
+```
+
+Synchronise the system clock
+```
+$ sudo linuxptp-rt.phc2sys -s eth0 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m -z /run/snap.linuxptp-rt/ptp4l
+```
+
+### Automotive
+Master
+```
+$ sudo linuxptp-rt.ptp4l -i eth0 --step_threshold=1 -m \
+-f /snap/linuxptp-rt/current/etc/automotive-master.cfg \
+--uds_address=/run/snap.linuxptp-rt/ptp4l \
+--uds_ro_address=/run/snap.linuxptp-rt/ptp4lro \
+--refclock_sock_address=/run/snap.linuxptp-rt/refclock.ptp.sock
+```
+
+Slave
+```
+$ sudo linuxptp-rt.ptp4l -i eth0 --step_threshold=1 -m \
+-f /snap/linuxptp-rt/current/etc/automotive-slave.cfg \
+--uds_address=/run/snap.linuxptp-rt/ptp4l \
+--uds_ro_address=/run/snap.linuxptp-rt/ptp4lro \
+--refclock_sock_address=/run/snap.linuxptp-rt/refclock.ptp.sock
+```
+
+Synchronise system clock
+```
+$ sudo linuxptp-rt.phc2sys -s eth0 -O 0 -c CLOCK_REALTIME --step_threshold=1 \
+--transportSpecific=1 -m --first_step_threshold=0.0 -w \
+-z /run/snap.linuxptp-rt/ptp4l
 ```
 
 ## References
