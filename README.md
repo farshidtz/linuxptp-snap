@@ -81,13 +81,13 @@ For usage examples, refer to the wiki.
 Synchronize the PTP Hardware Clock (PHC):
 ```bash
 $ sudo linuxptp-rt.ptp4l -i eth0 -f /snap/linuxptp-rt/current/etc/gPTP.cfg --step_threshold=1 -m
-ptp4l[10992.160]: selected /dev/ptp0 as PTP clock
-ptp4l[10992.246]: port 1 (eth0): INITIALIZING to LISTENING on INIT_COMPLETE
-ptp4l[10992.247]: port 0 (/var/run/ptp4l): INITIALIZING to LISTENING on INIT_COMPLETE
-ptp4l[10992.247]: port 0 (/var/run/ptp4lro): INITIALIZING to LISTENING on INIT_COMPLETE
-ptp4l[10995.795]: port 1 (eth0): LISTENING to MASTER on ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES
-ptp4l[10995.795]: selected local clock 04421a.fffe.078056 as best master
-ptp4l[10995.795]: port 1 (eth0): assuming the grand master role
+ptp4l[5357.320]: selected /dev/ptp0 as PTP clock
+ptp4l[5357.331]: port 1 (eth0): INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l[5357.331]: port 0 (/run/snap.linuxptp-rt/ptp4l): INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l[5357.331]: port 0 (/run/snap.linuxptp-rt/ptp4lro): INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l[5361.107]: port 1 (eth0): LISTENING to MASTER on ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES
+ptp4l[5361.107]: selected local clock 2ccf67.fffe.1cbba1 as best master
+ptp4l[5361.107]: port 1 (eth0): assuming the grand master role
 ```
 
 where:
@@ -133,7 +133,7 @@ phc2sys[2433.378]: CLOCK_REALTIME phc offset 37498388319 s1 freq   +9735 delay  
 ```
 
 where:
-- `-z` sets the server address for UDS
+- `-z` is set to change the default PTP Server Unix Domain Socket
 
 
 ### hwstamp-ctl
@@ -158,9 +158,9 @@ phc_ctl[45040.084]: clock time is 1689781163.846408401 or Wed Jul 19 17:39:23 20
 ### 🚧 timemaster
 Run Network Time Protocol (NTP) with PTP as reference clocks:
 ```bash
-$ sudo linuxptp-rt.timemaster -f /var/snap/linuxptp-rt/common/timemaster.conf -m 
-timemaster[5368.389]: failed to spawn /usr/sbin/chronyd: No such file or directory
-timemaster[5368.389]: exiting
+$ sudo linuxptp-rt.timemaster -f /snap/linuxptp-rt/current/etc/timemaster.conf -m
+timemaster[6519.236]: failed to spawn /usr/sbin/chronyd: No such file or directory
+timemaster[6519.236]: exiting
 ```
 
 ### 🚧 ts2phc
