@@ -22,7 +22,7 @@ parts:
   linuxptp:
     after: [local]
     plugin: make
-    source: git://git.code.sf.net/p/linuxptp/code
+    source: https://github.com/richardcochran/linuxptp.git
     source-tag: v4.0
     source-depth: 1
     # make-parameters: 
