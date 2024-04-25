@@ -16,9 +16,12 @@ parts:
     source: snap/local
     override-build: |
       CONF=$SNAPCRAFT_PART_INSTALL/etc
+      BIN=$SNAPCRAFT_PART_INSTALL/bin
       mkdir -p $CONF
       cp -v etc/* $CONF/
-  
+      mkdir -p $BIN
+      cp -v bin/* $BIN/
+
   linuxptp:
     after: [local]
     plugin: make
@@ -54,7 +57,7 @@ parts:
       craftctl set version="$(git describe --tags | sed s/v//)+snap"
       
       craftctl default
-      
+
 apps:
   hwstamp-ctl: # renamed to bypass character restrictions
     command: usr/local/sbin/hwstamp_ctl
@@ -119,7 +122,7 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
-      
+
   ts2phc:
     command: usr/local/sbin/ts2phc
     plugs:
@@ -139,4 +142,8 @@ apps:
       - network-control
       # Access to PTP subsystem and files
       - ptp
-      
+
+  create-run-dir-service:
+    # Makes sure /run/snap.linuxpt exists, as /run is cleared during a reboot.
+    command: bin/create-run-dir.sh
+    daemon: oneshot
