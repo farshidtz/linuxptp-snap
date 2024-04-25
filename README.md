@@ -8,7 +8,7 @@ snapcraft -v
 
 ### Install
 ```bash
-snap install --dangerous ./linuxptp-rt_XXX.snap
+sudo snap install --dangerous ./linuxptp-rt_XXX.snap
 ```
 
 ### Configure snap
@@ -16,16 +16,16 @@ snap install --dangerous ./linuxptp-rt_XXX.snap
 Grant access to necessary resources:
 ```bash
 # Access to network setting
-snap connect linuxptp-rt:network-control
+sudo snap connect linuxptp-rt:network-control
 # Access to system date and time
-snap connect linuxptp-rt:time-control
+sudo snap connect linuxptp-rt:time-control
 
 # Access to system logs and data
-snap connect linuxptp-rt:system-backup
-snap connect linuxptp-rt:log-observe
+sudo snap connect linuxptp-rt:system-backup
+sudo snap connect linuxptp-rt:log-observe
 
 # Access to PTP subsystem and files
-snap connect linuxptp-rt:ptp
+sudo snap connect linuxptp-rt:ptp
 ```
 
 (optional) Add [aliases](https://snapcraft.io/docs/commands-and-aliases) to run the commands without the namespace. For example:
@@ -101,26 +101,43 @@ $ sudo linuxptp-rt.nsm -i eth0 -f /snap/linuxptp-rt/current/etc/ptp4l.conf
 Configure the system's UTC-TAI offset (leap seconds):
 ```bash
 $ sudo linuxptp-rt.pmc -u -b 0 -t 1 \
-  -s /run/snap.linuxptp-rt/ptp4l \
-  -i /run/snap.linuxptp-rt/pmc.$pid \
-        "SET GRANDMASTER_SETTINGS_NP clockClass 248 \
-        clockAccuracy 0xfe offsetScaledLogVariance 0xffff \
-        currentUtcOffset 37 leap61 0 leap59 0 currentUtcOffsetValid 1 \
-        ptpTimescale 1 timeTraceable 1 frequencyTraceable 0 \
-        timeSource 0xa0"
-sending: SET GRANDMASTER_SETTINGS_NP
+  "SET GRANDMASTER_SETTINGS_NP clockClass 248 \
+  clockAccuracy 0xfe offsetScaledLogVariance 0xffff \
+  currentUtcOffset 37 leap61 0 leap59 0 currentUtcOffsetValid 1 \
+  ptpTimescale 1 timeTraceable 1 frequencyTraceable 0 \
+  timeSource 0xa0"
 ```
 
 where:
 - `-u` specifies the usage of Unix Domain Sockets for inter process communication
-- `-i` is set to change the default Unix Domain Socket for PTP Management Client
-- `-s` is set to change the default PTP Server Unix Domain Socket
+
+The above `SET` command should output a response like below. You can also query the settings by running:
+
+```bash
+$ sudo linuxptp-rt.pmc -u -b 0 -t 1 "GET GRANDMASTER_SETTINGS_NP"`
+```
+
+```
+sending: SET GRANDMASTER_SETTINGS_NP
+	2ccf67.fffe.1cbba1-0 seq 0 RESPONSE MANAGEMENT GRANDMASTER_SETTINGS_NP
+		clockClass              248
+		clockAccuracy           0xfe
+		offsetScaledLogVariance 0xffff
+		currentUtcOffset        37
+		leap61                  0
+		leap59                  0
+		currentUtcOffsetValid   1
+		ptpTimescale            1
+		timeTraceable           1
+		frequencyTraceable      0
+		timeSource              0xa0
+```
 
 
 ### phc2sys
 Run `ptp4l` and synchronize the system clock with PHC:
 ```bash
-$ sudo linuxptp-rt.phc2sys -s eth0 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m -z /run/snap.linuxptp-rt/ptp4l
+$ sudo linuxptp-rt.phc2sys -s eth0 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m
 phc2sys[2429.376]: CLOCK_REALTIME phc offset 37488402189 s0 freq    +781 delay      0
 phc2sys[2430.376]: CLOCK_REALTIME phc offset 37488450430 s1 freq  +48990 delay      0
 phc2sys[2431.377]: CLOCK_REALTIME phc offset 37498466839 s0 freq  +48990 delay      0
@@ -128,9 +145,6 @@ phc2sys[2432.377]: CLOCK_REALTIME phc offset 37498427594 s0 freq  +48990 delay  
 phc2sys[2433.378]: CLOCK_REALTIME phc offset 37498388319 s1 freq   +9735 delay      0
 ^C
 ```
-
-where:
-- `-z` is set to change the default PTP Server Unix Domain Socket
 
 
 ### hwstamp-ctl
@@ -160,6 +174,8 @@ timemaster[6519.236]: failed to spawn /usr/sbin/chronyd: No such file or directo
 timemaster[6519.236]: exiting
 ```
 
+> Note: A strictly confined snap can not access and control executables on the host. Adding Chrony and NTP to this snap is a possible workaround, but a better solution is to use the standalone Chrony or NTP snaps, and setting up a connection between them. This is currently out of scope and will be looked at in the future. See issue #9.
+
 ### 🚧 ts2phc
 Synchronize one or more PHC using external time stamps:
 
@@ -168,6 +184,17 @@ $ sudo linuxptp-rt.ts2phc -c eth0 -m
 ts2phc[6307.476]: PTP_EXTTS_REQUEST2 failed: Operation not supported
 failed to initialize PPS sinks
 ```
+
+Raspberry Pi 5:
+```bash
+$ sudo linuxptp-rt.ts2phc -c eth0 -m
+ts2phc[80181.099]: PTP_EXTTS_REQUEST2 failed: Invalid argument
+ts2phc[80181.099]: PTP_EXTTS_REQUEST2 failed: Invalid argument
+failed to initialize PPS sinks
+ts2phc[80181.099]: PTP_EXTTS_REQUEST2 failed: Invalid argument
+```
+
+> Note: Special hardware is required to use `ts2phc`. See issue #8.
 
 ### tz2alt
 Monitor daylight savings time changes and publishes them to PTP stack:
@@ -186,33 +213,26 @@ $ sudo linuxptp-rt.ptp4l -i eth0 -f /snap/linuxptp-rt/current/etc/gPTP.cfg --ste
 
 Synchronise the system clock
 ```
-$ sudo linuxptp-rt.phc2sys -s eth0 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m -z /run/snap.linuxptp-rt/ptp4l
+$ sudo linuxptp-rt.phc2sys -s eth0 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m
 ```
 
 ### Automotive
 Master
 ```
 $ sudo linuxptp-rt.ptp4l -i eth0 --step_threshold=1 -m \
--f /snap/linuxptp-rt/current/etc/automotive-master.cfg \
---uds_address=/run/snap.linuxptp-rt/ptp4l \
---uds_ro_address=/run/snap.linuxptp-rt/ptp4lro \
---refclock_sock_address=/run/snap.linuxptp-rt/refclock.ptp.sock
+-f /snap/linuxptp-rt/current/etc/automotive-master.cfg
 ```
 
 Slave
 ```
 $ sudo linuxptp-rt.ptp4l -i eth0 --step_threshold=1 -m \
--f /snap/linuxptp-rt/current/etc/automotive-slave.cfg \
---uds_address=/run/snap.linuxptp-rt/ptp4l \
---uds_ro_address=/run/snap.linuxptp-rt/ptp4lro \
---refclock_sock_address=/run/snap.linuxptp-rt/refclock.ptp.sock
+-f /snap/linuxptp-rt/current/etc/automotive-slave.cfg
 ```
 
 Synchronise system clock
 ```
 $ sudo linuxptp-rt.phc2sys -s eth0 -O 0 -c CLOCK_REALTIME --step_threshold=1 \
---transportSpecific=1 -m --first_step_threshold=0.0 -w \
--z /run/snap.linuxptp-rt/ptp4l
+--transportSpecific=1 -m --first_step_threshold=0.0 -w
 ```
 
 ## References
