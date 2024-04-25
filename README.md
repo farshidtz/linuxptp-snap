@@ -8,7 +8,7 @@ snapcraft -v
 
 ### Install
 ```bash
-sudo snap install --dangerous ./linuxptp-rt_XXX.snap
+sudo snap install --dangerous ./linuxptp-rt_*.snap
 ```
 
 ### Configure snap
@@ -220,20 +220,32 @@ $ sudo linuxptp-rt.phc2sys -s eth0 -c CLOCK_REALTIME --step_threshold=1 --transp
 Master
 ```
 $ sudo linuxptp-rt.ptp4l -i eth0 --step_threshold=1 -m \
--f /snap/linuxptp-rt/current/etc/automotive-master.cfg
+  -f /snap/linuxptp-rt/current/etc/automotive-master.cfg
 ```
 
 Slave
 ```
 $ sudo linuxptp-rt.ptp4l -i eth0 --step_threshold=1 -m \
--f /snap/linuxptp-rt/current/etc/automotive-slave.cfg
+  -f /snap/linuxptp-rt/current/etc/automotive-slave.cfg
 ```
 
 Synchronise system clock
 ```
 $ sudo linuxptp-rt.phc2sys -s eth0 -O 0 -c CLOCK_REALTIME --step_threshold=1 \
---transportSpecific=1 -m --first_step_threshold=0.0 -w
+  --transportSpecific=1 -m --first_step_threshold=0.0 -w
 ```
+
+## Raspberry Pi 5
+
+The Raspberry Pi 5 supports PTP. It however does not work with the default `gPTP.cfg` file, as it specifies a minimum neighbour propagation delay of 800ns. We have seen delays of around 17000ns between two Pis connected back to back.
+
+One can remove the line `neighborPropDelayThresh 800` from `gPTP.cfg` to get it to work. Or alternatively specify a large enough threshold on the command line:
+```bash
+$ sudo linuxptp-rt.ptp4l -i eth0 -f /snap/linuxptp-rt/current/etc/gPTP.cfg \
+  --step_threshold=1 -m --neighborPropDelayThresh 20000
+```
+
+Note that this may have side effects, but during our testing two Pi 5's did synchronise their clocks to withing 20ns of each other.
 
 ## References
  - https://manpages.debian.org/unstable/linuxptp/index.html

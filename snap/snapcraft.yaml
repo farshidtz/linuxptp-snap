@@ -48,10 +48,6 @@ parts:
           ts2phc.c \
           tz2alt.c
 
-      # For gPTP to work on the Raspberry Pi 5,
-      # we need to remove the neighborPropDelayThresh config.
-      sed 's/^\(neighborPropDelayThresh.*\)/#\1/g' -i $CONF/gPTP.cfg
-
       craftctl set version="$(git describe --tags | sed s/v//)+snap"
       
       craftctl default
