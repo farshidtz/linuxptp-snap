@@ -113,9 +113,6 @@ where:
 
 The above `SET` command should output a response like below. You can also query the settings by running:
 
-```bash
-$ sudo linuxptp-rt.pmc -u -b 0 -t 1 "GET GRANDMASTER_SETTINGS_NP"`
-```
 
 ```
 sending: SET GRANDMASTER_SETTINGS_NP
@@ -204,7 +201,7 @@ tz2alt[70278.242]: truncating time zone display name from Europe/Berlin to Berli
 tz2alt[70278.245]: next discontinuity Wed Jul 26 17:03:22 2023 Europe/Berlin
 ```
 
-## Examples
+## Additional examples
 ### gPTP
 Master and slave, autoselected using the Best Master Clock Algorithm (BMCA)
 ```
@@ -239,13 +236,13 @@ $ sudo linuxptp-rt.phc2sys -s eth0 -O 0 -c CLOCK_REALTIME --step_threshold=1 \
 
 The Raspberry Pi 5 supports PTP. It however does not work with the default `gPTP.cfg` file, as it specifies a minimum neighbour propagation delay of 800ns. We have seen delays of around 17000ns between two Pis connected back to back.
 
-One can remove the line `neighborPropDelayThresh 800` from `gPTP.cfg` to get it to work. Or alternatively specify a large enough threshold on the command line:
+One can remove the line `neighborPropDelayThresh 800` from `gPTP.cfg` to get it to work, or override it with a large enough threshold on the command line:
 ```bash
 $ sudo linuxptp-rt.ptp4l -i eth0 -f /snap/linuxptp-rt/current/etc/gPTP.cfg \
   --step_threshold=1 -m --neighborPropDelayThresh 20000
 ```
 
-Note that this may have side effects, but during our testing two Pi 5's did synchronise their clocks to withing 20ns of each other.
+Note that this may have side effects, but during our testing, two Pi 5's did synchronise their clocks to within 20ns of each other.
 
 ## References
  - https://manpages.debian.org/unstable/linuxptp/index.html
