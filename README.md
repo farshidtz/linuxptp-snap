@@ -167,7 +167,7 @@ timemaster[5368.389]: exiting
 Synchronize one or more PTP Hardware Clocks (PHC) using external time stamps (GPS) or another PHC. Not all hardware support setting the PHC, so this command may fail with the error `PTP_EXTTS_REQUEST2 failed: Operation not supported`.
 
 ```bash
-$ sudo linuxptp-rt.ts2phc -c enp0s30f4 -m
+$ sudo linuxptp-rt.ts2phc -c eth0 -m
 ts2phc[4331812.338]: UTC-TAI offset not set in system! Trying to revert to leapfile
 ^C
 ```
