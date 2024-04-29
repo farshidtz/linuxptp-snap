@@ -39,20 +39,17 @@ parts:
       cp -v configs/* $CONF
 
       # Replace /var/run with /run/snap.linuxptp-rt in config
-      cp $CONF/default.cfg $CONF/snap.cfg # make a copy because default.cfg is a reference for application defaults
-      sed -i 's/\/var\/run/\/run\/snap.linuxptp-rt/g' $CONF/snap.cfg
+      sed -i 's/\/var\/run/\/run\/snap.linuxptp-rt/g' $CONF/default.cfg
 
       # Replace hardcoded /var/run with /run/snap.linuxptp-rt
       sed -i 's/\/var\/run/\/run\/snap.linuxptp-rt/g' \
+          configs/default.cfg \
+          config.c \
           phc2sys.c \
+          pmc.c \
+          timemaster.c \
+          ts2phc.c \
           tz2alt.c
-
-      echo "
-      # Additional configuration for the snap
-      refclock_sock_address	/run/snap.linuxptp-rt/refclock.ptp.sock
-      uds_address		        /run/snap.linuxptp-rt/ptp4l
-      uds_ro_address		    /run/snap.linuxptp-rt/ptp4lro
-      " >> $CONF/gPTP.cfg
 
       craftctl set version="$(git describe --tags | sed s/v//)+snap"
       
