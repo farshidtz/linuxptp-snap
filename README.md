@@ -173,25 +173,14 @@ timemaster[6519.236]: exiting
 
 > Note: A strictly confined snap can not access and control executables on the host. Adding Chrony and NTP to this snap is a possible workaround, but a better solution is to use the standalone Chrony or NTP snaps, and setting up a connection between them. This is currently out of scope and will be looked at in the future. See issue #9.
 
-### 🚧 ts2phc
-Synchronize one or more PHC using external time stamps:
+### ts2phc
+Synchronize one or more PTP Hardware Clocks (PHC) using external time stamps (GPS) or another PHC. Not all hardware support setting the PHC, so this command may fail with the error `PTP_EXTTS_REQUEST2 failed: Operation not supported`.
 
 ```bash
 $ sudo linuxptp-rt.ts2phc -c eth0 -m
-ts2phc[6307.476]: PTP_EXTTS_REQUEST2 failed: Operation not supported
-failed to initialize PPS sinks
+ts2phc[4331812.338]: UTC-TAI offset not set in system! Trying to revert to leapfile
+^C
 ```
-
-Raspberry Pi 5:
-```bash
-$ sudo linuxptp-rt.ts2phc -c eth0 -m
-ts2phc[80181.099]: PTP_EXTTS_REQUEST2 failed: Invalid argument
-ts2phc[80181.099]: PTP_EXTTS_REQUEST2 failed: Invalid argument
-failed to initialize PPS sinks
-ts2phc[80181.099]: PTP_EXTTS_REQUEST2 failed: Invalid argument
-```
-
-> Note: Special hardware is required to use `ts2phc`. See issue #8.
 
 ### tz2alt
 Monitor daylight savings time changes and publishes them to PTP stack:
