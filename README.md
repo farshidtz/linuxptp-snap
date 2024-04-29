@@ -163,13 +163,13 @@ timemaster[5368.389]: failed to spawn /usr/sbin/chronyd: No such file or directo
 timemaster[5368.389]: exiting
 ```
 
-### 🚧 ts2phc
-Synchronize one or more PHC using external time stamps:
+### ts2phc
+Synchronize one or more PTP Hardware Clocks (PHC) using external time stamps (GPS) or another PHC. Not all hardware support setting the PHC, so this command may fail with the error `PTP_EXTTS_REQUEST2 failed: Operation not supported`.
 
 ```bash
-$ sudo linuxptp-rt.ts2phc -c eth0 -m 
-ts2phc[6307.476]: PTP_EXTTS_REQUEST2 failed: Operation not supported
-failed to initialize PPS sinks
+$ sudo linuxptp-rt.ts2phc -c eth0 -m
+ts2phc[4331812.338]: UTC-TAI offset not set in system! Trying to revert to leapfile
+^C
 ```
 
 ### tz2alt
