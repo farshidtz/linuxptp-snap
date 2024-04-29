@@ -106,18 +106,8 @@ $ sudo linuxptp-rt.pmc -u -b 0 -t 1 \
   currentUtcOffset 37 leap61 0 leap59 0 currentUtcOffsetValid 1 \
   ptpTimescale 1 timeTraceable 1 frequencyTraceable 0 \
   timeSource 0xa0"
-```
-
-where:
-- `-u` specifies the usage of Unix Domain Sockets for inter process communication
-
-The above `SET` command should output a response like below. You can also query the settings by running:
-
-
-```
-$ sudo linuxptp-rt.pmc -u -b 0 -t 1 "GET GRANDMASTER_SETTINGS_NP"
-sending: GET GRANDMASTER_SETTINGS_NP
-	2ccf67.fffe.1cbba1-0 seq 0 RESPONSE MANAGEMENT GRANDMASTER_SETTINGS_NP
+sending: SET GRANDMASTER_SETTINGS_NP
+	2ccf67.fffe.1cbba1-0 seq 0 RESPONSE MANAGEMENT GRANDMASTER_SETTINGS_NP 
 		clockClass              248
 		clockAccuracy           0xfe
 		offsetScaledLogVariance 0xffff
@@ -129,6 +119,15 @@ sending: GET GRANDMASTER_SETTINGS_NP
 		timeTraceable           1
 		frequencyTraceable      0
 		timeSource              0xa0
+```
+
+where:
+- `-u` specifies the usage of Unix Domain Sockets for inter process communication
+
+You can also query the current settings by running:
+
+```
+$ sudo linuxptp-rt.pmc -u -b 0 -t 1 "GET GRANDMASTER_SETTINGS_NP"
 ```
 
 
