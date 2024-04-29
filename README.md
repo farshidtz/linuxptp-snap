@@ -115,7 +115,8 @@ The above `SET` command should output a response like below. You can also query 
 
 
 ```
-sending: SET GRANDMASTER_SETTINGS_NP
+$ sudo linuxptp-rt.pmc -u -b 0 -t 1 "GET GRANDMASTER_SETTINGS_NP"
+sending: GET GRANDMASTER_SETTINGS_NP
 	2ccf67.fffe.1cbba1-0 seq 0 RESPONSE MANAGEMENT GRANDMASTER_SETTINGS_NP
 		clockClass              248
 		clockAccuracy           0xfe
