@@ -141,6 +141,6 @@ apps:
       - ptp
 
   create-run-dir-service:
-    # Makes sure /run/snap.linuxpt exists, as /run is cleared during a reboot.
+    # Create the expected run directory on install and after each boot
     command: bin/create-run-dir.sh
     daemon: oneshot
