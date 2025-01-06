@@ -25,7 +25,8 @@ parts:
   linuxptp:
     after: [local]
     plugin: make
-    source: git://git.code.sf.net/p/linuxptp/code
+    source-type: git
+    source: https://git.code.sf.net/p/linuxptp/code
     source-tag: v4.4
     source-depth: 1
     # make-parameters: 
