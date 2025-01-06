@@ -1,4 +1,4 @@
-name: linuxptp-rt
+name: linuxptp
 base: core22
 summary: Linux Precision Time Protocol (PTP)
 description: |
@@ -38,11 +38,11 @@ parts:
       mkdir -p $CONF
       cp -v configs/* $CONF
 
-      # Replace /var/run with /run/snap.linuxptp-rt in config
-      sed -i 's/\/var\/run/\/run\/snap.linuxptp-rt/g' $CONF/default.cfg
+      # Replace /var/run with /run/snap.linuxptp in config
+      sed -i 's/\/var\/run/\/run\/snap.linuxptp/g' $CONF/default.cfg
 
-      # Replace hardcoded /var/run with /run/snap.linuxptp-rt
-      sed -i 's/\/var\/run/\/run\/snap.linuxptp-rt/g' \
+      # Replace hardcoded /var/run with /run/snap.linuxptp
+      sed -i 's/\/var\/run/\/run\/snap.linuxptp/g' \
           configs/default.cfg \
           config.c \
           phc2sys.c \
