@@ -8,7 +8,7 @@ snapcraft -v
 
 ### Install
 ```bash
-sudo snap install --dangerous ./linuxptp-rt_*.snap
+sudo snap install --dangerous ./linuxptp_*.snap
 ```
 
 ### Configure snap
@@ -16,23 +16,23 @@ sudo snap install --dangerous ./linuxptp-rt_*.snap
 Grant access to necessary resources:
 ```bash
 # Access to network setting
-sudo snap connect linuxptp-rt:network-control
+sudo snap connect linuxptp:network-control
 # Access to system date and time
-sudo snap connect linuxptp-rt:time-control
+sudo snap connect linuxptp:time-control
 
 # Access to system logs and data
-sudo snap connect linuxptp-rt:system-backup
-sudo snap connect linuxptp-rt:log-observe
+sudo snap connect linuxptp:system-backup
+sudo snap connect linuxptp:log-observe
 
 # Access to PTP subsystem and files
-sudo snap connect linuxptp-rt:ptp
+sudo snap connect linuxptp:ptp
 ```
 
 (optional) Add [aliases](https://snapcraft.io/docs/commands-and-aliases) to run the commands without the namespace. For example:
 ```bash
-$ snap alias linuxptp-rt.ptp4l ptp4l
+$ snap alias linuxptp.ptp4l ptp4l
 Added:
-  - linuxptp-rt.ptp4l as ptp4l
+  - linuxptp.ptp4l as ptp4l
 
 $ which ptp4l
 /snap/bin/ptp4l
@@ -42,9 +42,9 @@ $ ptp4l -v
 ```
 
 ### Configure linuxptp
-The default config files are placed under `/snap/linuxptp-rt/current/etc`:
+The default config files are placed under `/snap/linuxptp/current/etc`:
 ```
-/snap/linuxptp-rt/current/etc
+/snap/linuxptp/current/etc
 ├── automotive-master.cfg
 ├── automotive-slave.cfg
 ├── default.cfg
@@ -67,7 +67,7 @@ The configuration files are sourced from two locations:
 - LinuxPTP's [source code](https://github.com/richardcochran/linuxptp)
 - This repo (ptp4l.conf and timemaster.conf). These files have been taken from the linuxptp_3.1.1-3_amd64.deb package from Ubuntu archives.
 
-> Note: linuxptp uses unix domain sockets for inter-process communication. By default it stores the UDS file handles under `/run` or `/var/run`. Neither of these two system directories can be accessed from inside a strictly confined snap. We therefore change these UDSs to be created under `/run/snap.linuxptp-rt/`, which is a special directory that may be accessed by the snap. Please keep this in mind when running any of the linuxptp utilities.
+> Note: linuxptp uses unix domain sockets for inter-process communication. By default it stores the UDS file handles under `/run` or `/var/run`. Neither of these two system directories can be accessed from inside a strictly confined snap. We therefore change these UDSs to be created under `/run/snap.linuxptp/`, which is a special directory that may be accessed by the snap. Please keep this in mind when running any of the linuxptp utilities.
 
 ## Usage examples
 
@@ -76,11 +76,11 @@ The configuration files are sourced from two locations:
 ### ptp4l
 Synchronize the PTP Hardware Clock (PHC):
 ```bash
-$ sudo linuxptp-rt.ptp4l -i eth0 -f /snap/linuxptp-rt/current/etc/gPTP.cfg --step_threshold=1 -m
+$ sudo linuxptp.ptp4l -i eth0 -f /snap/linuxptp/current/etc/gPTP.cfg --step_threshold=1 -m
 ptp4l[5357.320]: selected /dev/ptp0 as PTP clock
 ptp4l[5357.331]: port 1 (eth0): INITIALIZING to LISTENING on INIT_COMPLETE
-ptp4l[5357.331]: port 0 (/run/snap.linuxptp-rt/ptp4l): INITIALIZING to LISTENING on INIT_COMPLETE
-ptp4l[5357.331]: port 0 (/run/snap.linuxptp-rt/ptp4lro): INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l[5357.331]: port 0 (/run/snap.linuxptp/ptp4l): INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l[5357.331]: port 0 (/run/snap.linuxptp/ptp4lro): INITIALIZING to LISTENING on INIT_COMPLETE
 ptp4l[5361.107]: port 1 (eth0): LISTENING to MASTER on ANNOUNCE_RECEIPT_TIMEOUT_EXPIRES
 ptp4l[5361.107]: selected local clock 2ccf67.fffe.1cbba1 as best master
 ptp4l[5361.107]: port 1 (eth0): assuming the grand master role
@@ -93,14 +93,14 @@ where:
 ### nsm
 NetSync Monitor (NSM) client:
 ```bash
-$ sudo linuxptp-rt.nsm -i eth0 -f /snap/linuxptp-rt/current/etc/ptp4l.conf
+$ sudo linuxptp.nsm -i eth0 -f /snap/linuxptp/current/etc/ptp4l.conf
 ```
 
 
 ### pmc
 Configure the system's UTC-TAI offset (leap seconds):
 ```bash
-$ sudo linuxptp-rt.pmc -u -b 0 -t 1 \
+$ sudo linuxptp.pmc -u -b 0 -t 1 \
   "SET GRANDMASTER_SETTINGS_NP clockClass 248 \
   clockAccuracy 0xfe offsetScaledLogVariance 0xffff \
   currentUtcOffset 37 leap61 0 leap59 0 currentUtcOffsetValid 1 \
@@ -127,14 +127,14 @@ where:
 You can also query the current settings by running:
 
 ```
-$ sudo linuxptp-rt.pmc -u -b 0 -t 1 "GET GRANDMASTER_SETTINGS_NP"
+$ sudo linuxptp.pmc -u -b 0 -t 1 "GET GRANDMASTER_SETTINGS_NP"
 ```
 
 
 ### phc2sys
 Run `ptp4l` and synchronize the system clock with PHC:
 ```bash
-$ sudo linuxptp-rt.phc2sys -s eth0 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m
+$ sudo linuxptp.phc2sys -s eth0 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m
 phc2sys[2429.376]: CLOCK_REALTIME phc offset 37488402189 s0 freq    +781 delay      0
 phc2sys[2430.376]: CLOCK_REALTIME phc offset 37488450430 s1 freq  +48990 delay      0
 phc2sys[2431.377]: CLOCK_REALTIME phc offset 37498466839 s0 freq  +48990 delay      0
@@ -147,7 +147,7 @@ phc2sys[2433.378]: CLOCK_REALTIME phc offset 37498388319 s1 freq   +9735 delay  
 ### hwstamp-ctl
 Enable hardware timestamping:
 ```bash
-$ sudo linuxptp-rt.hwstamp-ctl -i eth0 -t 1 -r 9
+$ sudo linuxptp.hwstamp-ctl -i eth0 -t 1 -r 9
 current settings:
 tx_type 1
 rx_filter 12
@@ -159,14 +159,14 @@ rx_filter 12
 ### phc_ctl
 Control a PHC clock:
 ```bash
-$ sudo linuxptp-rt.phc-ctl eth0 get
+$ sudo linuxptp.phc-ctl eth0 get
 phc_ctl[45040.084]: clock time is 1689781163.846408401 or Wed Jul 19 17:39:23 2023
 ```
 
 ### 🚧 timemaster
 Run Network Time Protocol (NTP) with PTP as reference clocks:
 ```bash
-$ sudo linuxptp-rt.timemaster -f /snap/linuxptp-rt/current/etc/timemaster.conf -m
+$ sudo linuxptp.timemaster -f /snap/linuxptp/current/etc/timemaster.conf -m
 timemaster[6519.236]: failed to spawn /usr/sbin/chronyd: No such file or directory
 timemaster[6519.236]: exiting
 ```
@@ -177,7 +177,7 @@ timemaster[6519.236]: exiting
 Synchronize one or more PTP Hardware Clocks (PHC) using external time stamps (GPS) or another PHC. Not all hardware support setting the PHC, so this command may fail with the error `PTP_EXTTS_REQUEST2 failed: Operation not supported`.
 
 ```bash
-$ sudo linuxptp-rt.ts2phc -c eth0 -m
+$ sudo linuxptp.ts2phc -c eth0 -m
 ts2phc[4331812.338]: UTC-TAI offset not set in system! Trying to revert to leapfile
 ^C
 ```
@@ -185,7 +185,7 @@ ts2phc[4331812.338]: UTC-TAI offset not set in system! Trying to revert to leapf
 ### tz2alt
 Monitor daylight savings time changes and publishes them to PTP stack:
 ```bash
-$ sudo linuxptp-rt.tz2alt -z Europe/Berlin --leapfile /usr/share/zoneinfo/leap-seconds.list
+$ sudo linuxptp.tz2alt -z Europe/Berlin --leapfile /usr/share/zoneinfo/leap-seconds.list
 tz2alt[70278.242]: truncating time zone display name from Europe/Berlin to Berlin
 tz2alt[70278.245]: next discontinuity Wed Jul 26 17:03:22 2023 Europe/Berlin
 ```
@@ -194,30 +194,30 @@ tz2alt[70278.245]: next discontinuity Wed Jul 26 17:03:22 2023 Europe/Berlin
 ### gPTP
 Master and slave, autoselected using the Best Master Clock Algorithm (BMCA)
 ```
-$ sudo linuxptp-rt.ptp4l -i eth0 -f /snap/linuxptp-rt/current/etc/gPTP.cfg --step_threshold=1 -m
+$ sudo linuxptp.ptp4l -i eth0 -f /snap/linuxptp/current/etc/gPTP.cfg --step_threshold=1 -m
 ```
 
 Synchronise the system clock
 ```
-$ sudo linuxptp-rt.phc2sys -s eth0 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m
+$ sudo linuxptp.phc2sys -s eth0 -c CLOCK_REALTIME --step_threshold=1 --transportSpecific=1 -w -m
 ```
 
 ### Automotive
 Master
 ```
-$ sudo linuxptp-rt.ptp4l -i eth0 --step_threshold=1 -m \
-  -f /snap/linuxptp-rt/current/etc/automotive-master.cfg
+$ sudo linuxptp.ptp4l -i eth0 --step_threshold=1 -m \
+  -f /snap/linuxptp/current/etc/automotive-master.cfg
 ```
 
 Slave
 ```
-$ sudo linuxptp-rt.ptp4l -i eth0 --step_threshold=1 -m \
-  -f /snap/linuxptp-rt/current/etc/automotive-slave.cfg
+$ sudo linuxptp.ptp4l -i eth0 --step_threshold=1 -m \
+  -f /snap/linuxptp/current/etc/automotive-slave.cfg
 ```
 
 Synchronise system clock
 ```
-$ sudo linuxptp-rt.phc2sys -s eth0 -O 0 -c CLOCK_REALTIME --step_threshold=1 \
+$ sudo linuxptp.phc2sys -s eth0 -O 0 -c CLOCK_REALTIME --step_threshold=1 \
   --transportSpecific=1 -m --first_step_threshold=0.0 -w
 ```
 
@@ -227,7 +227,7 @@ The Raspberry Pi 5 supports PTP. It however does not work with the default `gPTP
 
 One can remove the line `neighborPropDelayThresh 800` from `gPTP.cfg` to get it to work, or override it with a large enough threshold on the command line:
 ```bash
-$ sudo linuxptp-rt.ptp4l -i eth0 -f /snap/linuxptp-rt/current/etc/gPTP.cfg \
+$ sudo linuxptp.ptp4l -i eth0 -f /snap/linuxptp/current/etc/gPTP.cfg \
   --step_threshold=1 -m --neighborPropDelayThresh 20000
 ```
 
