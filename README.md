@@ -17,7 +17,7 @@ This also auto-connects the following snap interfaces to access the necessary re
 
 You can verify the connections by running: `snap connections linuxptp`.
 
-To build and install from source, refer [here](build-and-install-from-source).
+To build and install from source, refer [here](#build-and-install-from-source).
 
 Add [aliases](https://snapcraft.io/docs/commands-and-aliases) to run the commands without the namespace. For example:
 ```bash
