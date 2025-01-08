@@ -25,9 +25,11 @@ parts:
   linuxptp:
     after: [local]
     plugin: make
+    build-environment:
+      - BUILD_METADATA: snap
     source-type: git
     source: https://git.code.sf.net/p/linuxptp/code
-    source-tag: v4.4
+    source-tag: master # change this to a tag for stable builds (e.g. v4.4)
     source-depth: 1
     # make-parameters: 
     override-build: |
@@ -52,7 +54,9 @@ parts:
           ts2phc.c \
           tz2alt.c
 
-      craftctl set version="$(git describe --tags | sed s/v//)+snap"
+      # prefix the snap version with the upstream tag, or fall back to the commit hash
+      UPSTREAM_VERSION=$(git describe --exact-match --tags 2> /dev/null || git rev-parse --short HEAD)
+      craftctl set version=$UPSTREAM_VERSION+$BUILD_METADATA
       
       craftctl default
 
