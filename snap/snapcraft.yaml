@@ -1,9 +1,7 @@
 name: linuxptp
 base: core22
 summary: Linux Precision Time Protocol (PTP)
-description: |
-  Snap packaging for linuxptp,
-  an implementation of the Precision Time Protocol (PTP) according to IEEE standard 1588 for Linux.
+description: Refer to https://snapcraft.io/linuxptp
 license: GPL-2.0-or-later
 adopt-info: linuxptp
 
