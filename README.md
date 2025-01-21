@@ -19,11 +19,6 @@ Grant access to necessary resources:
 sudo snap connect linuxptp:network-control
 # Access to system date and time
 sudo snap connect linuxptp:time-control
-
-# Access to system logs and data
-sudo snap connect linuxptp:system-backup
-sudo snap connect linuxptp:log-observe
-
 # Access to PTP subsystem and files
 sudo snap connect linuxptp:ptp
 ```
