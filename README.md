@@ -1,34 +1,25 @@
 # LinuxPTP Snap
+[![linuxptp](https://snapcraft.io/linuxptp/badge.svg)](https://snapcraft.io/linuxptp)
 
+LinuxPTP synchronizes clocks over Ethernet using the IEEE 1588 and IEEE 802.1AS standards.
+It includes utilities to synchronize supported network interface cards' internal precision hardware clocks (PHC), PPS signals from GPS receivers, as well as the system clock.
+Accurate synchronization over Ethernet is obtained by time stamping the Ethernet frames on transmit and receive.
 
-### Build
+## Install
 ```bash
-snapcraft -v
+sudo snap install linuxptp
 ```
 
-### Install
-```bash
-sudo snap install --dangerous ./linuxptp_*.snap
-```
+This also auto-connects the following snap interfaces to access the necessary resources:
+- [network-control](https://snapcraft.io/docs/network-control-interface) to enable RX and TX hardware time stamping
+- [time-control](https://snapcraft.io/docs/time-control-interface) to synchronize the system clock from the network
+- [ptp](https://snapcraft.io/docs/ptp-interface) to access the PTP subsystem and files
 
-### Configure snap
+You can verify the connections by running: `snap connections linuxptp`.
 
-Grant access to necessary resources:
-```bash
-# Access to network setting
-sudo snap connect linuxptp:network-control
-# Access to system date and time
-sudo snap connect linuxptp:time-control
+To build and install from source, refer [here](#build-and-install-from-source).
 
-# Access to system logs and data
-sudo snap connect linuxptp:system-backup
-sudo snap connect linuxptp:log-observe
-
-# Access to PTP subsystem and files
-sudo snap connect linuxptp:ptp
-```
-
-(optional) Add [aliases](https://snapcraft.io/docs/commands-and-aliases) to run the commands without the namespace. For example:
+Add [aliases](https://snapcraft.io/docs/commands-and-aliases) to run the commands without the namespace. For example:
 ```bash
 $ snap alias linuxptp.ptp4l ptp4l
 Added:
@@ -41,7 +32,12 @@ $ ptp4l -v
 4.0
 ```
 
-### Configure linuxptp
+> [!NOTE]
+> If LinuxPTP is also installed as a Debian package, the commands may execute the binaries from the deb (under /usr/sbin/).
+> This depends on the order of search paths set in the PATH environment variable.
+
+
+## Configure
 The default config files are placed under `/snap/linuxptp/current/etc`:
 ```
 /snap/linuxptp/current/etc
@@ -232,6 +228,26 @@ $ sudo linuxptp.ptp4l -i eth0 -f /snap/linuxptp/current/etc/gPTP.cfg \
 ```
 
 Note that this may have side effects, but during our testing, two Pi 5's did synchronise their clocks to within 20ns of each other.
+
+
+## Build and install from source
+Build:
+```bash
+snapcraft -v
+```
+
+Install:
+```bash
+sudo snap install --dangerous ./linuxptp_*.snap
+```
+
+Manually grant access to necessary resources:
+```bash
+sudo snap connect linuxptp:network-control
+sudo snap connect linuxptp:time-control
+sudo snap connect linuxptp:ptp
+```
+
 
 ## References
  - https://manpages.debian.org/unstable/linuxptp/index.html
