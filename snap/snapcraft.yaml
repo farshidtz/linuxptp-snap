@@ -54,6 +54,21 @@ parts:
       
       craftctl default
 
+  test-suite:
+    plugin: make
+    source-type: git
+    source: https://github.com/mlichvar/linuxptp-testsuite.git
+    source-tag: master
+    override-build: |
+      mkdir -p $SNAPCRAFT_PART_INSTALL/linuxptp-testsuite
+      mv * $SNAPCRAFT_PART_INSTALL/linuxptp-testsuite
+      cd $SNAPCRAFT_PART_INSTALL/linuxptp-testsuite
+
+      git clone https://github.com/mlichvar/clknetsim.git
+      cd clknetsim
+      rm -r .git
+      make
+
 apps:
   hwstamp-ctl: # renamed to bypass character restrictions
     command: usr/local/sbin/hwstamp_ctl
@@ -143,3 +158,6 @@ apps:
     # Create the expected run directory on install and after each boot
     command: bin/create-run-dir.sh
     daemon: oneshot
+
+  test:
+    command: bin/run-tests.sh
