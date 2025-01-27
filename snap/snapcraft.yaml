@@ -160,4 +160,6 @@ apps:
     daemon: oneshot
 
   test:
+    plugs:
+      - network-bind
     command: bin/run-tests.sh
