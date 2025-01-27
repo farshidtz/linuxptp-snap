@@ -57,8 +57,8 @@ parts:
   test-suite:
     plugin: make
     source-type: git
-    source: https://github.com/mlichvar/linuxptp-testsuite.git
-    source-tag: master
+    source: https://github.com/jpm-canonical/linuxptp-testsuite.git
+    source-tag: fix/awk-syntax
     override-build: |
       mkdir -p $SNAPCRAFT_PART_INSTALL/linuxptp-testsuite
       mv * $SNAPCRAFT_PART_INSTALL/linuxptp-testsuite
